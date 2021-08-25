@@ -1,0 +1,13 @@
+# gitignore file
+
+# Ignore Mac system files
+.DS_store
+
+# Ignore the Script (output may contain sensitive data)
+Pre_Filtering.Rmd
+CellTypesPlacentaAnalyses_Script.Rmd
+
+# Ignore the Data
+Input_Data_prepared/
+Results/
+
