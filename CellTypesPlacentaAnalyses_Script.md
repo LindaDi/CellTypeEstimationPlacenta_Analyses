@@ -1,84 +1,92 @@
-Reference-based versus reference-free cell type estimation in DNA
-methylation studies using human placental tissue - Script 2,
-Main\_Analyses
+Reliability of a novel approach for reference-based cell type estimation
+in human placental DNA methylation studies - Script 2, Main_Analyses
 ================
 Linda Dieckmann
 02-07/2021
 
-  - [preparation](#preparation)
-      - [loading packages](#loading-packages)
-      - [define function(s)](#define-functions)
-      - [R setup](#r-setup)
-      - [save packages info](#save-packages-info)
-  - [loading data](#loading-data)
-  - [Descriptives](#Descriptives)
-      - [methylation](#methylation)
-          - [1st PC](#1st-pc)
-      - [Cell Types](#cell-types)
-          - [plots reference-based cell
+-   [preparation](#preparation)
+    -   [loading packages](#loading-packages)
+    -   [define function(s)](#define-functions)
+    -   [R setup](#r-setup)
+    -   [save packages info](#save-packages-info)
+-   [loading data](#loading-data)
+-   [Descriptives](#descriptives)
+    -   [methylation](#methylation)
+        -   [1st PC](#1st-pc)
+    -   [Cell Types](#cell-types)
+        -   [plots reference-based cell
             types](#plots-reference-based-cell-types)
-      - [Fig S2](#fig-s2)
-      - [Phenos](#phenos)
-  - [correlation reference-free &
-    reference-based](#correlation-reference-free--reference-based)
-  - [Check if methylation can be predicted using cell types (using
-    CV)](#check-if-methylation-can-be-predicted-using-cell-types-using-cv)
-      - [CVS](#cvs)
-          - [predict PC1 methylation](#predict-pc1-methylation)
-      - [Placenta ITU](#placenta-itu)
-          - [predict PC1 methylation](#predict-pc1-methylation-1)
-      - [Placenta PREDO](#placenta-predo)
-          - [predict PC1 methylation](#predict-pc1-methylation-2)
-      - [Placenta BET](#placenta-bet)
-          - [predict PC1 methylation](#predict-pc1-methylation-3)
-      - [arrange plots together](#arrange-plots-together)
-  - [Check how methylation of single CpGs can be predicted using cell
+    -   [Phenos](#phenos)
+-   [Correlation reference-free and reference-based estimated cell
+    types](#correlation-reference-free-and-reference-based-estimated-cell-types)
+-   [Correlation reference-free estimated cell types and
+    phenotypes](#correlation-reference-free-estimated-cell-types-and-phenotypes)
+    -   [CVS](#cvs)
+    -   [Placenta ITU](#placenta-itu)
+    -   [Placenta PREDO](#placenta-predo)
+    -   [Placenta BET](#placenta-bet)
+-   [Check if methylation can be predicted using cell types
+    (using CV)](#check-if-methylation-can-be-predicted-using-cell-types-using-cv)
+    -   [CVS](#cvs-1)
+        -   [predict PC1 methylation](#predict-pc1-methylation)
+    -   [Placenta ITU](#placenta-itu-1)
+        -   [predict PC1 methylation](#predict-pc1-methylation-1)
+    -   [Placenta PREDO](#placenta-predo-1)
+        -   [predict PC1 methylation](#predict-pc1-methylation-2)
+    -   [Placenta BET](#placenta-bet-1)
+        -   [predict PC1 methylation](#predict-pc1-methylation-3)
+        -   [Make outlier plot for BET CV
+            Model](#make-outlier-plot-for-bet-cv-model)
+    -   [arrange plots together](#arrange-plots-together)
+-   [Check how methylation of single CpGs can be predicted using cell
     types](#check-how-methylation-of-single-cpgs-can-be-predicted-using-cell-types)
-      - [CVS](#cvs-1)
-      - [Placenta ITU](#placenta-itu-1)
-      - [Placenta PREDO](#placenta-predo-1)
-      - [Placenta BET](#placenta-bet-1)
-      - [arrange Model figures](#arrange-model-figures)
-  - [CpGs most influenced by cell types
+    -   [CVS](#cvs-2)
+    -   [Placenta ITU](#placenta-itu-2)
+    -   [Placenta PREDO](#placenta-predo-2)
+    -   [Placenta BET](#placenta-bet-2)
+    -   [arrange Model figures](#arrange-model-figures)
+-   [CpGs most influenced by cell types
     (reference-based)](#cpgs-most-influenced-by-cell-types-reference-based)
-      - [extract CpGs](#extract-cpgs)
-      - [genes of all CpGs that overlap between data
+    -   [extract CpGs](#extract-cpgs)
+    -   [genes of all CpGs that overlap between data
         sets](#genes-of-all-cpgs-that-overlap-between-data-sets)
-      - [extract CpGs with R2 \> 30% predicted by reference-based cell
+    -   [extract CpGs with R2 > 30% predicted by reference-based cell
         types that are in all data
         sets](#extract-cpgs-with-r2--30-predicted-by-reference-based-cell-types-that-are-in-all-data-sets)
-      - [Tissue-specific Gene
+    -   [Tissue-specific Gene
         Enrichment](#tissue-specific-gene-enrichment)
-          - [genes with R2 \> .30 that overlap between the data sets
+        -   [genes with R2 > .30 that overlap between the data sets
             against all
             genes](#genes-with-r2--30-that-overlap-between-the-data-sets-against-all-genes)
-      - [Placenta cell enrichment](#placenta-cell-enrichment)
-  - [CpGs most influenced by cell types
+    -   [Placenta cell enrichment](#placenta-cell-enrichment)
+-   [CpGs most influenced by cell types
     (reference-free)](#cpgs-most-influenced-by-cell-types-reference-free)
-      - [extract CpGs](#extract-cpgs-1)
-      - [extract CpGs with R2 \> 30% that are in all data sets
+    -   [extract CpGs](#extract-cpgs-1)
+    -   [extract CpGs with R2 > 30% that are in all data sets
         (ref-free)](#extract-cpgs-with-r2--30-that-are-in-all-data-sets-ref-free)
-      - [Tissue-specific Gene
+    -   [Tissue-specific Gene
         Enrichment](#tissue-specific-gene-enrichment-1)
-          - [genes with R2 \> .30 that overlap between the data sets
-            against all genes that overlap between data
-            sets](#genes-with-r2--30-that-overlap-between-the-data-sets-against-all-genes-that-overlap-between-data-sets)
-      - [Placenta cell enrichment](#placenta-cell-enrichment-1)
-  - [Plot Cell types (RPC,
+        -   [genes with R2 > .30 that overlap between the data sets
+            against all
+            genes](#genes-with-r2--30-that-overlap-between-the-data-sets-against-all-genes-1)
+    -   [Placenta cell enrichment](#placenta-cell-enrichment-1)
+-   [save Tissue Enrichment Plot](#save-tissue-enrichment-plot)
+-   [save Cell Enrichment Plot](#save-cell-enrichment-plot)
+-   [Plot Cell types (RPC,
     reference-based)](#plot-cell-types-rpc-reference-based)
-  - [Compare data sets in RPC cell type
+-   [Compare data sets in RPC cell type
     proportions](#compare-data-sets-in-rpc-cell-type-proportions)
-      - [Placenta: CVS vs. term Placenta in
+    -   [Placenta: CVS vs. term Placenta in
         ITU](#placenta-cvs-vs-term-placenta-in-itu)
-      - [Term Placentas](#term-placentas)
-  - [Phenotype relationships](#phenotype-relationships)
-      - [CVS (ITU)](#cvs-itu)
-      - [Placenta (ITU)](#placenta-itu-2)
-      - [Placenta (PREDO)](#placenta-predo-2)
-      - [Placenta (BET)](#placenta-bet-2)
-      - [arrange plots together](#arrange-plots-together-1)
+    -   [Term Placentas](#term-placentas)
+-   [Phenotype relationships](#phenotype-relationships)
+    -   [CVS (ITU)](#cvs-itu)
+    -   [Placenta (ITU)](#placenta-itu-3)
+    -   [Placenta (PREDO)](#placenta-predo-3)
+    -   [Placenta (BET)](#placenta-bet-3)
+    -   [arrange plots together](#arrange-plots-together-1)
 
-{\#top}
+{#top}
 
 # preparation
 
@@ -87,375 +95,27 @@ Linda Dieckmann
 ``` r
 library(plyr)
 library(dplyr)
-```
-
-    ## 
-    ## Attaching package: 'dplyr'
-
-    ## The following objects are masked from 'package:plyr':
-    ## 
-    ##     arrange, count, desc, failwith, id, mutate, rename, summarise,
-    ##     summarize
-
-    ## The following objects are masked from 'package:stats':
-    ## 
-    ##     filter, lag
-
-    ## The following objects are masked from 'package:base':
-    ## 
-    ##     intersect, setdiff, setequal, union
-
-``` r
 library(devtools)
-```
-
-    ## Loading required package: usethis
-
-``` r
 library(ggplot2)
 library(corrplot)
-```
-
-    ## corrplot 0.90 loaded
-
-``` r
-source("http://www.sthda.com/upload/rquery_cormat.r")
 library(gridExtra)
-```
-
-    ## 
-    ## Attaching package: 'gridExtra'
-
-    ## The following object is masked from 'package:dplyr':
-    ## 
-    ##     combine
-
-``` r
 library(Hmisc)
-```
-
-    ## Loading required package: lattice
-
-    ## Loading required package: survival
-
-    ## Loading required package: Formula
-
-    ## 
-    ## Attaching package: 'Hmisc'
-
-    ## The following objects are masked from 'package:dplyr':
-    ## 
-    ##     src, summarize
-
-    ## The following objects are masked from 'package:plyr':
-    ## 
-    ##     is.discrete, summarize
-
-    ## The following objects are masked from 'package:base':
-    ## 
-    ##     format.pval, units
-
-``` r
 library(tidyr)
 library(viridis)
-```
-
-    ## Loading required package: viridisLite
-
-``` r
 library(psych)
-```
-
-    ## 
-    ## Attaching package: 'psych'
-
-    ## The following object is masked from 'package:Hmisc':
-    ## 
-    ##     describe
-
-    ## The following objects are masked from 'package:ggplot2':
-    ## 
-    ##     %+%, alpha
-
-``` r
-library(Hotelling)
-```
-
-    ## Loading required package: corpcor
-
-    ## 
-    ## Attaching package: 'Hotelling'
-
-    ## The following object is masked from 'package:dplyr':
-    ## 
-    ##     summarise
-
-    ## The following object is masked from 'package:plyr':
-    ## 
-    ##     summarise
-
-``` r
 library(ggpubr)
-```
-
-    ## 
-    ## Attaching package: 'ggpubr'
-
-    ## The following object is masked from 'package:plyr':
-    ## 
-    ##     mutate
-
-``` r
 library(ggdendro)
-```
-
-    ## 
-    ## Attaching package: 'ggdendro'
-
-    ## The following object is masked from 'package:Hmisc':
-    ## 
-    ##     label
-
-``` r
 library(reshape2)
-```
-
-    ## 
-    ## Attaching package: 'reshape2'
-
-    ## The following object is masked from 'package:tidyr':
-    ## 
-    ##     smiths
-
-``` r
 library(planet)
 library(GGally)
-```
-
-    ## Registered S3 method overwritten by 'GGally':
-    ##   method from   
-    ##   +.gg   ggplot2
-
-``` r
-# install_github("Github-MS/xvalglms") 
 library(xvalglms)
-```
-
-    ## Loading required package: foreach
-
-    ## Loading required package: doParallel
-
-    ## Loading required package: iterators
-
-    ## Loading required package: parallel
-
-``` r
 library(cowplot)
-```
-
-    ## 
-    ## Attaching package: 'cowplot'
-
-    ## The following object is masked from 'package:ggpubr':
-    ## 
-    ##     get_legend
-
-``` r
 library(rcompanion)
-```
-
-    ## 
-    ## Attaching package: 'rcompanion'
-
-    ## The following object is masked from 'package:psych':
-    ## 
-    ##     phi
-
-``` r
 library(ggcorrplot)
 library(TissueEnrich)
-```
-
-    ## Loading required package: ensurer
-
-    ## 
-    ## Attaching package: 'ensurer'
-
-    ## The following object is masked from 'package:devtools':
-    ## 
-    ##     check
-
-    ## Loading required package: SummarizedExperiment
-
-    ## Loading required package: GenomicRanges
-
-    ## Loading required package: stats4
-
-    ## Loading required package: BiocGenerics
-
-    ## 
-    ## Attaching package: 'BiocGenerics'
-
-    ## The following objects are masked from 'package:parallel':
-    ## 
-    ##     clusterApply, clusterApplyLB, clusterCall, clusterEvalQ,
-    ##     clusterExport, clusterMap, parApply, parCapply, parLapply,
-    ##     parLapplyLB, parRapply, parSapply, parSapplyLB
-
-    ## The following object is masked from 'package:gridExtra':
-    ## 
-    ##     combine
-
-    ## The following objects are masked from 'package:dplyr':
-    ## 
-    ##     combine, intersect, setdiff, union
-
-    ## The following objects are masked from 'package:stats':
-    ## 
-    ##     IQR, mad, sd, var, xtabs
-
-    ## The following objects are masked from 'package:base':
-    ## 
-    ##     anyDuplicated, append, as.data.frame, basename, cbind, colnames,
-    ##     dirname, do.call, duplicated, eval, evalq, Filter, Find, get, grep,
-    ##     grepl, intersect, is.unsorted, lapply, Map, mapply, match, mget,
-    ##     order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank,
-    ##     rbind, Reduce, rownames, sapply, setdiff, sort, table, tapply,
-    ##     union, unique, unsplit, which.max, which.min
-
-    ## Loading required package: S4Vectors
-
-    ## 
-    ## Attaching package: 'S4Vectors'
-
-    ## The following object is masked from 'package:tidyr':
-    ## 
-    ##     expand
-
-    ## The following objects are masked from 'package:dplyr':
-    ## 
-    ##     first, rename
-
-    ## The following object is masked from 'package:plyr':
-    ## 
-    ##     rename
-
-    ## The following object is masked from 'package:base':
-    ## 
-    ##     expand.grid
-
-    ## Loading required package: IRanges
-
-    ## 
-    ## Attaching package: 'IRanges'
-
-    ## The following object is masked from 'package:psych':
-    ## 
-    ##     reflect
-
-    ## The following objects are masked from 'package:dplyr':
-    ## 
-    ##     collapse, desc, slice
-
-    ## The following object is masked from 'package:plyr':
-    ## 
-    ##     desc
-
-    ## Loading required package: GenomeInfoDb
-
-    ## Warning: nicht definierte Slotklassen in der Definition von "XRaw":
-    ## elementMetadata(class "DataTable_OR_NULL")
-
-    ## Warning: nicht definierte Slotklassen in der Definition von "XInteger":
-    ## elementMetadata(class "DataTable_OR_NULL")
-
-    ## Warning: nicht definierte Slotklassen in der Definition von "XDouble":
-    ## elementMetadata(class "DataTable_OR_NULL")
-
-    ## Loading required package: Biobase
-
-    ## Welcome to Bioconductor
-    ## 
-    ##     Vignettes contain introductory material; view with
-    ##     'browseVignettes()'. To cite Bioconductor, see
-    ##     'citation("Biobase")', and for packages 'citation("pkgname")'.
-
-    ## 
-    ## Attaching package: 'Biobase'
-
-    ## The following object is masked from 'package:Hmisc':
-    ## 
-    ##     contents
-
-    ## Loading required package: DelayedArray
-
-    ## Loading required package: matrixStats
-
-    ## 
-    ## Attaching package: 'matrixStats'
-
-    ## The following objects are masked from 'package:Biobase':
-    ## 
-    ##     anyMissing, rowMedians
-
-    ## The following object is masked from 'package:dplyr':
-    ## 
-    ##     count
-
-    ## The following object is masked from 'package:plyr':
-    ## 
-    ##     count
-
-    ## Warning: multiple methods tables found for 'which'
-
-    ## 
-    ## Attaching package: 'DelayedArray'
-
-    ## The following objects are masked from 'package:matrixStats':
-    ## 
-    ##     colMaxs, colMins, colRanges, rowMaxs, rowMins, rowRanges
-
-    ## The following objects are masked from 'package:base':
-    ## 
-    ##     aperm, apply, rowsum
-
-    ## Loading required package: GSEABase
-
-    ## Loading required package: annotate
-
-    ## Loading required package: AnnotationDbi
-
-    ## 
-    ## Attaching package: 'AnnotationDbi'
-
-    ## The following object is masked from 'package:dplyr':
-    ## 
-    ##     select
-
-    ## Loading required package: XML
-
-    ## Loading required package: graph
-
-    ## 
-    ## Attaching package: 'graph'
-
-    ## The following object is masked from 'package:XML':
-    ## 
-    ##     addNode
-
-    ## The following object is masked from 'package:plyr':
-    ## 
-    ##     join
-
-``` r
 library(readxl)
 library(tidyr)
 library(factoextra)
-```
-
-    ## Welcome! Want to learn more? See two factoextra-related books at https://goo.gl/ve3WBa
-
-``` r
 library(npmv)
 library(plyr)
 library(psych)
@@ -464,35 +124,29 @@ library(rcompanion)
 library(planet)
 library(Biobase)
 library(rstatix)
+library(gridGraphics)
+library(rsq)
+library(xlsx)
+library(scales)
 ```
-
-    ## 
-    ## Attaching package: 'rstatix'
-
-    ## The following object is masked from 'package:AnnotationDbi':
-    ## 
-    ##     select
-
-    ## The following object is masked from 'package:IRanges':
-    ## 
-    ##     desc
-
-    ## The following object is masked from 'package:ggcorrplot':
-    ## 
-    ##     cor_pmat
-
-    ## The following objects are masked from 'package:plyr':
-    ## 
-    ##     desc, mutate
-
-    ## The following object is masked from 'package:stats':
-    ## 
-    ##     filter
 
 ## define function(s)
 
 ``` r
 scaleFUN <- function(x) sprintf("%.2f", x)
+```
+
+``` r
+boxplot_fun = function(x, id, dat) {
+  dat[ ,c(x, id)] %>%   
+  pivot_longer(cols=-id) %>% 
+  rename_at(1, ~"id") %>%
+  ggplot(aes(x = .data[["name"]], y = .data[["value"]])) +
+    geom_boxplot() +
+    theme_bw()+
+    labs(x="", y="")+
+    theme(axis.text.x = element_text(size=6, angle=30, hjust=1), axis.title.x=element_text(size=6), axis.title.y = element_text(size=6), axis.text.y = element_text(size=6))
+}
 ```
 
 ## R setup
@@ -542,7 +196,6 @@ names_refbased_cells <- c("Trophoblasts", "Stromal", "Hofbauer", "Endothelial", 
 
 ``` r
 data("plColors") # get color from publication from Yuan et al., to make it easier comparable
-# names(plColors) <- c("syncytiotrophoblasts","trophoblasts", "stromal", "Hofbauer", "endothelial", "nRBC")
 ```
 
 ``` r
@@ -664,33 +317,19 @@ annotate_figure(M_Scree,bottom = text_grob("Principal Component",size = 12)), wi
 ```
 
 <!-- see which samples are outliers in PC1 -->
-
 <!-- ```{r} -->
-
 <!-- # use rstatix package -->
-
 <!-- # values outliers IQR 1.5 -->
-
 <!-- #is_outlier(Pheno_Placenta_ITU$PC_methB1, coef = 1.5) -->
-
 <!-- samples_IQR_outliers_placenta_itu_meth <- Pheno_Placenta_ITU[is_outlier(Pheno_Placenta_ITU$PC_methB1, coef = 1.5), "Sample_Name"] -->
-
 <!-- # values outliers IQR 3 -->
-
 <!-- #is_outlier(Pheno_Placenta_ITU$PC_methB1, coef = 3) -->
-
 <!-- samples_different_placenta_itu_meth <- Pheno_Placenta_ITU[is_outlier(Pheno_Placenta_ITU$PC_methB1, coef = 3), "Sample_Name"] -->
-
 <!-- ``` -->
-
 <!-- ```{r} -->
-
 <!-- save(samples_different_placenta_itu_meth,file="Input_Data_prepared/samples_different_placenta_itu_meth.RData") -->
-
 <!-- # sample names of those that are extreme outliers in PC1 methylation -->
-
 <!-- ``` -->
-
 <!-- these outliers are excluded in the _reduced data -->
 
 *take a look at the outlier samples from ITU placenta*
@@ -714,11 +353,6 @@ PC1_Placenta_ITU_allpersons_plot, width=84, height=50, units="mm", dpi=600, scal
 ## Cell Types
 
 ``` r
-#desc_placenta_itu_rpc <- psych::describe(Pheno_Placenta_ITU_reduced_filtered[,names_refbased_cells]*100)
-#desc_cvs_itu_rpc <- psych::describe(Pheno_CVS_ITU_filtered[,names_refbased_cells]*100)
-#desc_placenta_predo_rpc <- psych::describe(Pheno_Placenta_PREDO_filtered[,names_refbased_cells]*100)
-#desc_placenta_BET_rpc <- psych::describe(Pheno_Placenta_BET_filtered[,names_refbased_cells]*100)
-
 desc_placenta_itu_rpc <- psych::describe(Pheno_Placenta_ITU_reduced_filtered[,names_refbased_cells])
 desc_cvs_itu_rpc <- psych::describe(Pheno_CVS_ITU_filtered[,names_refbased_cells])
 desc_placenta_predo_rpc <- psych::describe(Pheno_Placenta_PREDO_filtered[,names_refbased_cells])
@@ -852,16 +486,10 @@ Placenta_refbasedCells_allpersons_plot <- ggplot(gather(Pheno_Placenta_ITU_filte
 Placenta_refbasedCells_allpersons_plot
 ```
 
-## Fig S2
-
 group and save the plots that show how placenta methylation outliers are
 different
 
 ``` r
-#PC1_Placenta_ITU_allpersons_plot
-#samplesample_cor_plot
-#Placenta_refbasedCells_allpersons_plot
-
 ITU_Placenta_persons_different_plot <- ggarrange(
           PC1_Placenta_ITU_allpersons_plot,
           samplesample_cor_plot,
@@ -897,153 +525,462 @@ prop.table(table(Pheno_Placenta_BET_filtered$Sex))
 prop.table(table(Pheno_Placenta_BET_filtered$group))
 ```
 
-# correlation reference-free & reference-based
+# Correlation reference-free and reference-based estimated cell types
 
 *Fig. 1*
 
-To make publication-ready plot
+To make publication-ready plot for corrplot need to adjust the function
+to have significance stars:
 
-for p values
+change the place_points function within the corrplot function:
 
 ``` r
-rcor_reffree_rpc_placenta_itu <- rcorr(as.matrix(Pheno_Placenta_ITU_reduced_filtered[,c("C1","C2","C3","C4","C5","C6","C7","C8", names_refbased_cells)]), type="spearman")
+#trace(corrplot, edit=TRUE)
+```
 
-rcor_reffree_rpc_cvs_itu <- rcorr(as.matrix(Pheno_CVS_ITU_filtered[,c("C1","C2","C3","C4","C5", names_refbased_cells)]), type="spearman")
+Then replace on line 443
 
-rcor_reffree_rpc_placenta_predo <- rcorr(as.matrix(Pheno_Placenta_PREDO_filtered[,c("C1","C2",names_refbased_cells)]),type="spearman")
+``` r
+# place_points = function(sig.locs, point) {
+#   text(pos.pNew[, 1][sig.locs], pos.pNew[, 2][sig.locs], 
+#        labels = point, col = pch.col, cex = pch.cex, 
+#        lwd = 2)
+```
 
-rcor_reffree_rpc_placenta_BET <- rcorr(as.matrix(Pheno_Placenta_BET_filtered[,c("C1","C2","C3",names_refbased_cells)]),type="spearman")
+with:
+
+``` r
+# place_points = function(sig.locs, point) {
+#       text(pos.pNew[, 1][sig.locs]+0.40, (pos.pNew[, 2][sig.locs]), 
+#            labels = point, col = pch.col, cex = pch.cex, 
+#            lwd = 2)
+```
+
+here 0.3 0.4 0.2 0.25 is added to the x-position, depending on the plot
+
+data prepared for correlation
+
+``` r
+reffree_rpc_placenta_itu <- Pheno_Placenta_ITU_reduced_filtered[,c("C1","C2","C3","C4","C5","C6","C7","C8", names_refbased_cells)]
+reffree_rpc_cvs_itu <- Pheno_CVS_ITU_filtered[,c("C1","C2","C3","C4","C5", names_refbased_cells)]
+reffree_rpc_placenta_predo <- Pheno_Placenta_PREDO_filtered[,c("C1","C2",names_refbased_cells)]
+reffree_rpc_placenta_BET <- Pheno_Placenta_BET_filtered[,c("C1","C2","C3",names_refbased_cells)]
+
+phenor_reffree_placenta_itu <- reffree_rpc_placenta_itu[,c("C1","C2","C3","C4","C5","C6","C7","C8")]
+phenor_reffree_cvs_itu <- reffree_rpc_cvs_itu[,c("C1","C2","C3","C4","C5")]
+phenor_reffree_placenta_predo <- reffree_rpc_placenta_predo[,c("C1","C2")]
+phenor_reffree_placenta_BET <- reffree_rpc_placenta_BET[,c("C1","C2","C3")]
+
+phenor_rpc_placenta_itu <- reffree_rpc_placenta_itu[,c(names_refbased_cells)]
+phenor_rpc_cvs_itu <- reffree_rpc_cvs_itu[,c(names_refbased_cells)]
+phenor_rpc_placenta_predo <- reffree_rpc_placenta_predo[,c(names_refbased_cells[ names_refbased_cells != "Hofbauer"])]
+phenor_rpc_placenta_BET <- reffree_rpc_placenta_BET[,c(names_refbased_cells)]
 ```
 
 ``` r
-# here I extract r and p and make sure that I only use half of the correlation matrix (otherwise would be doubled)
-r_cvs_rcor_refrpc <- rcor_reffree_rpc_cvs_itu$r
-r_cvs_rcor_refrpc <- r_cvs_rcor_refrpc[-c(1:5), -c(6:11)]
-r_cvs_rcor_refrpc <- round(r_cvs_rcor_refrpc, 1)
-r_placenta_itu_rcor_refrpc <- rcor_reffree_rpc_placenta_itu$r
-r_placenta_itu_rcor_refrpc <- r_placenta_itu_rcor_refrpc[-c(1:8), -c(9:14)]
-r_placenta_itu_rcor_refrpc <- round(r_placenta_itu_rcor_refrpc, 1)
-r_placenta_predo_rcor_refrpc <- rcor_reffree_rpc_placenta_predo$r
-r_placenta_predo_rcor_refrpc <- r_placenta_predo_rcor_refrpc[-c(1:2), -c(3:8)]
-r_placenta_predo_rcor_refrpc <- round(r_placenta_predo_rcor_refrpc,1)
-r_placenta_BET_rcor_refrpc <- rcor_reffree_rpc_placenta_BET$r
-r_placenta_BET_rcor_refrpc <- r_placenta_BET_rcor_refrpc[-c(1:3), -c(4:9)]
-r_placenta_BET_rcor_refrpc <- round(r_placenta_BET_rcor_refrpc,1)
+colnames(phenor_rpc_cvs_itu) <- c("Trophoblasts        ", "Stromal       ", "Hofbauer       ", "Endothelial       ", "nRBC       ", "Synctio-\n trophoblasts        ")
+colnames(phenor_rpc_placenta_itu) <- c("Trophoblasts", "Stromal", "Hofbauer", "Endothelial", "nRBC", "Synctio-\n trophoblasts")
+colnames(phenor_rpc_placenta_predo) <- c("Trophoblasts      ", "Stromal      ", "Endothelial      ", "nRBC      ", "Synctio-\n trophoblasts        \n")
+colnames(phenor_rpc_placenta_BET) <- c("Trophoblasts       ", "Stromal       ", "Hofbauer       ", "Endothelial       ", "nRBC       ", "Synctio-\n trophoblasts               ")
+```
 
-p_cvs_rcor_refrpc <- rcor_reffree_rpc_cvs_itu$P
-p_cvs_rcor_refrpc <- p_cvs_rcor_refrpc[-c(1:5), -c(6:11)]
-p_placenta_itu_rcor_refrpc <- rcor_reffree_rpc_placenta_itu$P
-p_placenta_itu_rcor_refrpc <- p_placenta_itu_rcor_refrpc[-c(1:8), -c(9:14)]
-p_placenta_predo_rcor_refrpc <- rcor_reffree_rpc_placenta_predo$P
-p_placenta_predo_rcor_refrpc <- p_placenta_predo_rcor_refrpc[-c(1:2), -c(3:8)]
-p_placenta_BET_rcor_refrpc <- rcor_reffree_rpc_placenta_BET$P
-p_placenta_BET_rcor_refrpc <- p_placenta_BET_rcor_refrpc[-c(1:3), -c(4:9)]
+CVS
+
+``` r
+r_cor_reffree_rpc_cvs_itu <- psych::corr.test(phenor_reffree_cvs_itu, phenor_rpc_cvs_itu, method="spearman", adjust = "bonferroni")
 ```
 
 ``` r
-adj_p_cvs <- matrix(p.adjust(as.vector(as.matrix(p_cvs_rcor_refrpc)), method='bonferroni', n=30), ncol=5)
-adj_p_placenta_itu <- matrix(p.adjust(as.vector(as.matrix(p_placenta_itu_rcor_refrpc)), method='bonferroni', n=48), ncol=8)
-adj_p_placenta_predo <- matrix(p.adjust(as.vector(as.matrix(p_placenta_predo_rcor_refrpc)), method='bonferroni',n=12),ncol=2)
-adj_p_placenta_BET <- matrix(p.adjust(as.vector(as.matrix(p_placenta_BET_rcor_refrpc)), method='bonferroni',n=18),ncol=3)
+par(xpd=TRUE)
+plot_r_cor_reffree_rpc_cvs_itu <- corrplot(r_cor_reffree_rpc_cvs_itu$r,
+     method="color", number.digits = 1,
+     mar=c(1,1,1,1),
+     addCoef.col = "black",
+     p.mat = r_cor_reffree_rpc_cvs_itu$p,
+     insig = "label_sig",
+     sig.level = c(.001, .01),
+     pch.cex = 0.7,
+     pch.col = "black",
+     tl.col="black",
+     tl.cex=0.75,
+     tl.srt = 45,
+     number.cex=0.7,
+     cl.pos='n')
+
+grid.echo()
+P1_corr_refbased_reffree <- grid.grab()
 ```
 
 ``` r
-adj_p_cvs
-adj_p_placenta_itu
-adj_p_placenta_predo
-adj_p_placenta_BET
+matrix.colors <- getGrob(P1_corr_refbased_reffree, gPath("square"), grep = TRUE)[["gp"]][["fill"]]
+P1_corr_refbased_reffree <- editGrob(P1_corr_refbased_reffree,
+               gPath("square"), grep = TRUE,
+               gp = gpar(col = NA,
+                         fill = NA))
+
+# apply the saved colours to the underlying matrix grob
+P1_corr_refbased_reffree<- editGrob(P1_corr_refbased_reffree,
+               gPath("symbols-rect-1"), grep = TRUE,
+               gp = gpar(fill = matrix.colors))
+
+# convert the background fill from white to transparent, while we are at it
+P1_corr_refbased_reffree <- editGrob(P1_corr_refbased_reffree,
+               gPath("background"), grep = TRUE,
+               gp = gpar(fill = NA))
 ```
 
 ``` r
-corplot_rrc_cvs <- ggcorrplot::ggcorrplot(r_cvs_rcor_refrpc, hc.order = FALSE,lab = T, tl.cex = 8,
-                                          colors=c("steelblue","white", "darkred"), method="circle")+
-  theme(axis.title.x = element_blank(), 
-        axis.title.y=element_blank(), 
-        axis.text.y = element_text(size=10), 
-        axis.text.x = element_text(size=10), 
-        legend.text = element_text(size=10), 
-        legend.title = element_text(size=10),
-        plot.title=element_text(size=10), 
-        plot.margin=grid::unit(c(1,-60,0,-60), "mm"))+
-  guides(fill = guide_legend(label.position = "right", title="Correlation Coefficient"))+
-  labs(tag = "a", title="CVS (ITU)", size=10)
-
-corplot_rrc_placenta <- ggcorrplot::ggcorrplot(r_placenta_itu_rcor_refrpc, hc.order = T,lab = FALSE, tl.cex = 8,
-                                               colors=c("steelblue","white", "darkred"), method="circle")+
-  theme(axis.title.x = element_blank(), 
-        axis.title.y=element_blank(), 
-        axis.text.y = element_text(size=10), 
-        axis.text.x = element_text(size=10), 
-        legend.text = element_blank(), 
-        legend.title = element_blank(), 
-        legend.position="none",plot.title=element_text(size=12), 
-        plot.margin=grid::unit(c(1,-60,0,-60), "mm"))+
-  labs(tag = "b", title="Placenta (ITU)", size=10)
-
-corplot_rrc_placenta_predo <- ggcorrplot::ggcorrplot(r_placenta_predo_rcor_refrpc, hc.order = FALSE,lab = T, tl.cex = 8,
-                                                     colors=c("steelblue","white", "darkred"), method="circle")+
-  theme(axis.title.x = element_blank(), 
-        axis.title.y=element_blank(), 
-        axis.text.y = element_text(size=10), 
-        axis.text.x = element_text(size=10), 
-        legend.text = element_blank(), 
-        legend.title = element_blank(), 
-        legend.position = "none",
-        plot.title=element_text(size=10), 
-        plot.margin=grid::unit(c(1,-60,0,-60), "mm"))+
-  labs(tag = "c", title="Placenta (PREDO)", size=10)
-
-corplot_rrc_placenta_BET <- ggcorrplot::ggcorrplot(r_placenta_BET_rcor_refrpc, hc.order = FALSE,lab = T, tl.cex = 8,
-                                                   colors=c("steelblue","white", "darkred"), method="circle")+
-  theme(axis.title.x = element_blank(), 
-        axis.title.y=element_blank(), 
-        axis.text.y = element_text(size=10), 
-        axis.text.x = element_text(size=10), 
-        legend.text = element_blank(), 
-        legend.title = element_blank(), 
-        legend.position = "none",
-        plot.title=element_text(size=10), 
-        plot.margin=grid::unit(c(1,-60,0,-60), "mm"))+
-  labs(tag = "d", title="Placenta (BET)", size=10)
-
-corplot_rrc_legend <-ggcorrplot::ggcorrplot(r_cvs_rcor_refrpc, hc.order = FALSE, lab = T, tl.cex = 8, colors= c("steelblue","white", "darkred"))+
-  theme(axis.title.x = element_blank(), 
-        axis.title.y=element_blank(), 
-        axis.text.y = element_text(size=10), 
-        axis.text.x = element_text(size=10), 
-        legend.text = element_text(size=10), 
-        legend.title = element_text(size=10), 
-        plot.margin=grid::unit(c(1,-60,0,-60), "mm"))+
-  guides(fill = guide_legend(label.position = "right", title="Correlation Coefficient"))
+r_cor_reffree_rpc_placenta_itu <- psych::corr.test(phenor_reffree_placenta_itu, phenor_rpc_placenta_itu, method="spearman", adjust = "bonferroni")
 ```
 
 ``` r
-corplot_rrc_cvs
-corplot_rrc_placenta
-corplot_rrc_placenta_predo
-corplot_rrc_placenta_BET
+plot_r_cor_reffree_rpc_placenta_itu <- corrplot(r_cor_reffree_rpc_placenta_itu$r,
+     method="color", number.digits=1,
+     mar=c(1,0,1,0),
+     addCoef.col = "black",
+     p.mat = r_cor_reffree_rpc_placenta_itu$p,
+     insig = "label_sig",
+     sig.level = c(.001, .01),
+     pch.cex = 0.7,
+     pch.col = "black",
+     tl.col="black",
+     tl.cex=0.75,
+     tl.srt = 45,
+     number.cex=0.7,
+     cl.pos='n')
+
+grid.echo()
+P2_corr_refbased_reffree <- grid.grab()
 ```
 
 ``` r
-g_legend<-function(a.gplot){
-  tmp <- ggplot_gtable(ggplot_build(a.gplot))
-  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
-  legend <- tmp$grobs[[leg]]
-  return(legend)}
+matrix.colors <- getGrob(P2_corr_refbased_reffree, gPath("square"), grep = TRUE)[["gp"]][["fill"]]
+P2_corr_refbased_reffree <- editGrob(P2_corr_refbased_reffree,
+               gPath("square"), grep = TRUE,
+               gp = gpar(col = NA,
+                         fill = NA))
+
+P2_corr_refbased_reffree<- editGrob(P2_corr_refbased_reffree,
+               gPath("symbols-rect-1"), grep = TRUE,
+               gp = gpar(fill = matrix.colors))
+
+P2_corr_refbased_reffree <- editGrob(P2_corr_refbased_reffree,
+               gPath("background"), grep = TRUE,
+               gp = gpar(fill = NA))
 ```
 
 ``` r
-gglegend2 <-g_legend(corplot_rrc_legend)
+r_cor_reffree_rpc_placenta_predo <- psych::corr.test(phenor_reffree_placenta_predo, phenor_rpc_placenta_predo, method="spearman", adjust = "bonferroni")
 ```
 
 ``` r
-ggsave("Results/Cor_RefFree_RPC.pdf",
-grid.arrange(arrangeGrob(corplot_rrc_cvs + theme(legend.position="none"),
-             corplot_rrc_placenta + theme(legend.position="none"),          
-             corplot_rrc_placenta_predo + theme(legend.position="none"),
-             corplot_rrc_placenta_BET + theme(legend.position="none"),
-             heights=c(4,5,2.8,3.2), nrow=4),
-             gglegend2, ncol=2, widths=c(12, 6)), width=84, height=160, units="mm", dpi=600, scale=2, device = cairo_pdf)
+plot_r_cor_reffree_rpc_placenta_predo <- corrplot(r_cor_reffree_rpc_placenta_predo$r,
+     method="color", number.digits=1,
+     mar=c(1,6,1,6),
+     addCoef.col = "black",
+     p.mat = r_cor_reffree_rpc_placenta_predo$p,
+     insig = "label_sig",
+     sig.level = c(.001, .01),
+     pch.cex = 0.75,
+     pch.col = "black",
+     tl.col="black",
+     tl.cex=0.7,
+     tl.srt = 45,
+     number.cex=0.7,
+     cl.pos='n')
+
+grid.echo()
+P3_corr_refbased_reffree <- grid.grab()
+```
+
+``` r
+matrix.colors <- getGrob(P3_corr_refbased_reffree, gPath("square"), grep = TRUE)[["gp"]][["fill"]]
+P3_corr_refbased_reffree <- editGrob(P3_corr_refbased_reffree,
+               gPath("square"), grep = TRUE,
+               gp = gpar(col = NA,
+                         fill = NA))
+
+P3_corr_refbased_reffree<- editGrob(P3_corr_refbased_reffree,
+               gPath("symbols-rect-1"), grep = TRUE,
+               gp = gpar(fill = matrix.colors))
+
+P3_corr_refbased_reffree <- editGrob(P3_corr_refbased_reffree,
+               gPath("background"), grep = TRUE,
+               gp = gpar(fill = NA))
+```
+
+``` r
+r_cor_reffree_rpc_placenta_bet <- psych::corr.test(phenor_reffree_placenta_BET, phenor_rpc_placenta_BET, method="spearman", adjust = "bonferroni")
+```
+
+``` r
+par(xpd=TRUE)
+plot_r_cor_reffree_rpc_placenta_bet <- corrplot(r_cor_reffree_rpc_placenta_bet$r,
+     method="color", number.digits=1,
+     mar=c(1,6,0,6),
+     addCoef.col = "black",
+     p.mat = r_cor_reffree_rpc_placenta_bet$p,
+     insig = "label_sig",
+     sig.level = c(.001, .01),
+     pch.cex = 0.75,
+     pch.col = "black",
+     tl.col="black",
+     tl.cex=0.7,
+     tl.srt = 45,
+     number.cex=0.7,
+     cl.pos='n')
+
+grid.echo()
+P4_corr_refbased_reffree <- grid.grab()
+```
+
+``` r
+matrix.colors <- getGrob(P4_corr_refbased_reffree, gPath("square"), grep = TRUE)[["gp"]][["fill"]]
+P4_corr_refbased_reffree <- editGrob(P4_corr_refbased_reffree,
+               gPath("square"), grep = TRUE,
+               gp = gpar(col = NA,
+                         fill = NA))
+
+P4_corr_refbased_reffree<- editGrob(P4_corr_refbased_reffree,
+               gPath("symbols-rect-1"), grep = TRUE,
+               gp = gpar(fill = matrix.colors))
+
+P4_corr_refbased_reffree <- editGrob(P4_corr_refbased_reffree,
+               gPath("background"), grep = TRUE,
+               gp = gpar(fill = NA))
+```
+
+``` r
+ggsave("Results/Cor_Refbased_Reffree_combined.pdf",
+       ggarrange(P1_corr_refbased_reffree, P2_corr_refbased_reffree, P3_corr_refbased_reffree, P4_corr_refbased_reffree, ncol=1, labels = c("a", "b", "c", "d"), heights = c(2,4,0.8,1), widths=c(2,4,0.8,1)), width=84, height=160, units="mm", dpi=600, scale=2)
+```
+
+[to the top](#top)
+
+# Correlation reference-free estimated cell types and phenotypes
+
+*Fig. 2*
+
+again need to adapt corrplot function by adding +0.25 / +0.35 to the
+x-position
+
+## CVS
+
+``` r
+CVS_ITU_filtered_corPhReffree <- na.omit(Pheno_CVS_ITU_filtered[ ,c("gestage_at_CVS_weeks", "PC1_ethnicity", "PC2_ethnicity", "Child_Sex", "C1", "C2", "C3", "C4", "C5")])
+# n = 200
+names(CVS_ITU_filtered_corPhReffree) <- c("gestational age\n(weeks)", "PC1 ethnicity", "PC2 ethnicity", "child sex", "C1  ", "C2  ", "C3  ", "C4  ", "C5  ")
+cells_CVS_ITU_filtered_corPhReffree <- CVS_ITU_filtered_corPhReffree[ ,c("C1  ", "C2  ", "C3  ", "C4  ", "C5  ")]
+phenos_CVS_ITU_filtered_corPhReffree <- CVS_ITU_filtered_corPhReffree[ ,c("gestational age\n(weeks)", "child sex", "PC1 ethnicity", "PC2 ethnicity")]
+phenos_CVS_ITU_filtered_corPhReffree$`child sex` = as.numeric(phenos_CVS_ITU_filtered_corPhReffree$`child sex`)
+```
+
+``` r
+r_CVS_ITU_filtered_corPhReffree <- psych::corr.test(phenos_CVS_ITU_filtered_corPhReffree, cells_CVS_ITU_filtered_corPhReffree, method="spearman", adjust = "bonferroni")
+```
+
+``` r
+corrplot(r_CVS_ITU_filtered_corPhReffree$r,
+     method="color", number.digits=1,
+     mar=c(1,3,2,2),
+     addCoef.col = "black",
+     p.mat = r_CVS_ITU_filtered_corPhReffree$p,
+     insig = "label_sig",
+     sig.level = c(.001, .01),
+     pch.cex = 0.7,
+     pch.col = "black",
+     tl.col="black",
+     tl.cex=0.75,
+     number.cex= 0.7,
+     outline=TRUE,
+     cl.pos='n')
+
+grid.echo()
+P1_corr_pheno_reffree <- grid.grab()
+```
+
+``` r
+matrix.colors <- getGrob(P1_corr_pheno_reffree, gPath("square"), grep = TRUE)[["gp"]][["fill"]]
+P1_corr_pheno_reffree <- editGrob(P1_corr_pheno_reffree,
+               gPath("square"), grep = TRUE,
+               gp = gpar(col = NA,
+                         fill = NA))
+
+# apply the saved colours to the underlying matrix grob
+P1_corr_pheno_reffree <- editGrob(P1_corr_pheno_reffree,
+               gPath("symbols-rect-1"), grep = TRUE,
+               gp = gpar(fill = matrix.colors))
+
+# convert the background fill from white to transparent, while we are at it
+P1_corr_pheno_reffree <- editGrob(P1_corr_pheno_reffree,
+               gPath("background"), grep = TRUE,
+               gp = gpar(fill = NA))
+```
+
+## Placenta ITU
+
+``` r
+Placenta_ITU_reduced_filtered_corPhReffree <- na.omit(Pheno_Placenta_ITU_reduced_filtered[ ,c("Gestational_Age_Weeks", "PC1_ethnicity", "PC2_ethnicity", "Child_Sex", "caseVScontrol", "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8")])
+# n = 425
+names(Placenta_ITU_reduced_filtered_corPhReffree) <- c("    gestational age\n(weeks)", "PC1 ethnicity", "PC2 ethnicity", "child sex", "    fetal chromosomal\n testing (yes/no)", "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8")
+cells_Placenta_ITU_reduced_filtered_corPhReffree <- Placenta_ITU_reduced_filtered_corPhReffree[ ,c("C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8")]
+phenos_Placenta_ITU_reduced_filtered_corPhReffree <- Placenta_ITU_reduced_filtered_corPhReffree[ ,c("    gestational age\n(weeks)", "child sex", "PC1 ethnicity", "PC2 ethnicity", "    fetal chromosomal\n testing (yes/no)")]
+phenos_Placenta_ITU_reduced_filtered_corPhReffree$`child sex` = as.numeric(Placenta_ITU_reduced_filtered_corPhReffree$`child sex`)
+phenos_Placenta_ITU_reduced_filtered_corPhReffree$`    fetal chromosomal\n testing (yes/no)` = as.numeric(Placenta_ITU_reduced_filtered_corPhReffree$`    fetal chromosomal\n testing (yes/no)`)
+```
+
+``` r
+r_Placenta_ITU_reduced_filtered_corPhReffree <- psych::corr.test(phenos_Placenta_ITU_reduced_filtered_corPhReffree, cells_Placenta_ITU_reduced_filtered_corPhReffree, method="spearman", adjust = "bonferroni")
+```
+
+``` r
+corrplot(r_Placenta_ITU_reduced_filtered_corPhReffree$r,
+     method="color", number.digits=1,
+     mar=c(1,3,1,3),
+     addCoef.col = "black",
+     p.mat = r_Placenta_ITU_reduced_filtered_corPhReffree$p,
+     insig = "label_sig",
+     sig.level = c(.001, .01),
+     pch.cex = 0.7,
+     pch.col = "black",
+     tl.col="black",
+     tl.cex=0.75,
+     number.cex= 0.7,
+     outline=TRUE,
+     cl.pos='n')
+
+grid.echo()
+P2_corr_pheno_reffree <- grid.grab()
+```
+
+``` r
+matrix.colors <- getGrob(P2_corr_pheno_reffree, gPath("square"), grep = TRUE)[["gp"]][["fill"]]
+P2_corr_pheno_reffree <- editGrob(P2_corr_pheno_reffree,
+               gPath("square"), grep = TRUE,
+               gp = gpar(col = NA,
+                         fill = NA))
+
+# apply the saved colours to the underlying matrix grob
+P2_corr_pheno_reffree <- editGrob(P2_corr_pheno_reffree,
+               gPath("symbols-rect-1"), grep = TRUE,
+               gp = gpar(fill = matrix.colors))
+
+# convert the background fill from white to transparent, while we are at it
+P2_corr_pheno_reffree <- editGrob(P2_corr_pheno_reffree,
+               gPath("background"), grep = TRUE,
+               gp = gpar(fill = NA))
+```
+
+## Placenta PREDO
+
+``` r
+Placenta_PREDO_filtered_corPhReffree <- na.omit(Pheno_Placenta_PREDO_filtered[ ,c("Gestational_Age", "PC1_ethnicity", "PC2_ethnicity", "Child_Sex", "C1", "C2")])
+# n = 118
+names(Placenta_PREDO_filtered_corPhReffree) <- c("gestational age\n(weeks)", "PC1 ethnicity", "PC2 ethnicity", "child sex", "C1 ", "C2 ")
+cells_Placenta_PREDO_filtered_corPhReffree <- Placenta_PREDO_filtered_corPhReffree[ ,c("C1 ", "C2 ")]
+phenos_Placenta_PREDO_filtered_corPhReffree <- Placenta_PREDO_filtered_corPhReffree[ ,c("gestational age\n(weeks)", "child sex", "PC1 ethnicity", "PC2 ethnicity")]
+phenos_Placenta_PREDO_filtered_corPhReffree$`child sex` = as.numeric(Placenta_PREDO_filtered_corPhReffree$`child sex`)
+```
+
+``` r
+r_Placenta_PREDO_filtered_corPhReffree <- psych::corr.test(phenos_Placenta_PREDO_filtered_corPhReffree, cells_Placenta_PREDO_filtered_corPhReffree, method="spearman", adjust = "bonferroni")
+```
+
+``` r
+corrplot(r_Placenta_PREDO_filtered_corPhReffree$r,
+     method="color", number.digits=1,
+     mar=c(1,0,1,1),
+     addCoef.col = "black",
+     p.mat = r_Placenta_PREDO_filtered_corPhReffree$p,
+     insig = "label_sig",
+     sig.level = c(.001, .01),
+     pch.cex = 0.7,
+     pch.col = "black",
+     tl.col="black",
+     tl.cex=0.75,
+     number.cex=0.7,
+     outline=TRUE,
+     cl.pos='n')
+
+grid.echo()
+P3_corr_pheno_reffree <- grid.grab()
+```
+
+``` r
+matrix.colors <- getGrob(P3_corr_pheno_reffree, gPath("square"), grep = TRUE)[["gp"]][["fill"]]
+P3_corr_pheno_reffree <- editGrob(P3_corr_pheno_reffree,
+               gPath("square"), grep = TRUE,
+               gp = gpar(col = NA,
+                         fill = NA))
+
+# apply the saved colours to the underlying matrix grob
+P3_corr_pheno_reffree <- editGrob(P3_corr_pheno_reffree,
+               gPath("symbols-rect-1"), grep = TRUE,
+               gp = gpar(fill = matrix.colors))
+
+# convert the background fill from white to transparent, while we are at it
+P3_corr_pheno_reffree <- editGrob(P3_corr_pheno_reffree,
+               gPath("background"), grep = TRUE,
+               gp = gpar(fill = NA))
+```
+
+## Placenta BET
+
+``` r
+Placenta_BET_filtered_corPhReffree <- na.omit(Pheno_Placenta_BET_filtered[ ,c("gestage_weeks", "PC1_ethnicity", "PC2_ethnicity","PC3_ethnicity", "PC4_ethnicity", "Sex", "group", "C1", "C2", "C3")])
+# n = 136
+names(Placenta_BET_filtered_corPhReffree) <- c("gestational age\n(weeks)", "PC1 ethnicity", "PC2 ethnicity", "PC3 ethnicity", "PC4 ethnicity", "child sex", "BET status", "C1", "C2", "C3")
+cells_Placenta_BET_filtered_corPhReffree <- Placenta_BET_filtered_corPhReffree[ ,c("C1", "C2", "C3")]
+phenos_Placenta_BET_filtered_corPhReffree <- Placenta_BET_filtered_corPhReffree[ ,c("gestational age\n(weeks)", "child sex", "BET status", "PC1 ethnicity", "PC2 ethnicity", "PC3 ethnicity", "PC4 ethnicity")]
+phenos_Placenta_BET_filtered_corPhReffree$`child sex` = as.numeric(Placenta_BET_filtered_corPhReffree$`child sex`)
+phenos_Placenta_BET_filtered_corPhReffree$`BET status` = as.numeric(Placenta_BET_filtered_corPhReffree$`BET status`)
+```
+
+``` r
+r_Placenta_BET_filtered_corPhReffree <- psych::corr.test(phenos_Placenta_BET_filtered_corPhReffree, cells_Placenta_BET_filtered_corPhReffree, method="spearman", adjust = "bonferroni")
+```
+
+``` r
+corrplot(r_Placenta_BET_filtered_corPhReffree$r,
+     method="color", number.digits=1,
+     mar=c(1,0,1,1),
+     addCoef.col = "black",
+     p.mat = r_Placenta_BET_filtered_corPhReffree$p,
+     insig = "label_sig",
+     sig.level = c(.001, .01),
+     pch.cex = 0.7,
+     pch.col = "black",
+     tl.col="black",
+     tl.cex=0.75,
+     number.cex=0.7,
+     outline=TRUE,
+     cl.pos='n')
+
+grid.echo()
+P4_corr_pheno_reffree <- grid.grab()
+```
+
+``` r
+matrix.colors <- getGrob(P4_corr_pheno_reffree, gPath("square"), grep = TRUE)[["gp"]][["fill"]]
+P4_corr_pheno_reffree <- editGrob(P4_corr_pheno_reffree,
+               gPath("square"), grep = TRUE,
+               gp = gpar(col = NA,
+                         fill = NA))
+
+# apply the saved colours to the underlying matrix grob
+P4_corr_pheno_reffree <- editGrob(P4_corr_pheno_reffree,
+               gPath("symbols-rect-1"), grep = TRUE,
+               gp = gpar(fill = matrix.colors))
+
+# convert the background fill from white to transparent, while we are at it
+P4_corr_pheno_reffree <- editGrob(P4_corr_pheno_reffree,
+               gPath("background"), grep = TRUE,
+               gp = gpar(fill = NA))
+```
+
+``` r
+ggsave("Results/Cor_Pheno_Reffree_combined.pdf",
+       ggarrange(P1_corr_pheno_reffree, P2_corr_pheno_reffree, P3_corr_pheno_reffree, P4_corr_pheno_reffree, ncol=1, labels = c("a", "b", "c", "d"), heights = c(1.5,2,1.5,2), widths = c(2,2,1,1), align='v'), width=84, height=180, units="mm", dpi=600, scale=2)
 ```
 
 [to the top](#top)
@@ -1084,7 +1021,7 @@ cell2_reg %>%
   stat_smooth()
 ```
 
-\-RMSE-
+-RMSE-
 
 ``` r
 models = vector(mode = "list", length = 6) 
@@ -1102,6 +1039,12 @@ CV_output_CVS_Meth = xval.glm(data = Reg_Pheno_CVS_ITU_filtered, models, folds =
 
 ``` r
 save(CV_output_CVS_Meth, file="Results/RData/CV_output_CVS_Meth.Rdata")
+```
+
+get adjusted R2 from winning model
+
+``` r
+rsq(glm(models[[3]], data= Reg_Pheno_CVS_ITU_filtered),adj=TRUE,type='v')
 ```
 
 ``` r
@@ -1133,14 +1076,16 @@ pc <- CV_output_CVS_Meth[["box.plot"]]
 ``` r
 p1c <- p1c +
   theme_minimal()+
-  theme(axis.text.x = element_text(size=10), axis.title.y = element_text(size=11), axis.text.y = element_text(size=8), legend.position="none")+
-  labs(tag = "a ", title="CVS (ITU)")
+  theme(axis.text.x = element_text(size=8), axis.title.y = element_text(size=8), axis.text.y = element_text(size=5), legend.text=element_text(size=8), legend.title=element_text(size=8), legend.key.size = unit(0.2, 'cm'))+
+  labs(tag = "a ", title="CVS (ITU)")+
+  scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.25))+
+  scale_color_discrete(name="Models",labels=c("Model 1", "Model 2", "Model 3", "Model 4", "Model 5", "Model 6"))
 ```
 
 ``` r
 pc <- pc +
   theme_minimal()+
-  theme(axis.text.x = element_text(size=10), axis.title.x=element_text(size=11), axis.title.y = element_text(size=11), axis.text.y = element_text(size=10), legend.position="none", axis.text.x.top = element_text(size=12))+
+  theme(axis.text.x = element_text(size=10), axis.title.x=element_text(size=10), axis.title.y = element_text(size=10), axis.text.y = element_text(size=10), legend.position="none", axis.text.x.top = element_text(size=10))+
   labs(tag = "    ")
 ```
 
@@ -1170,7 +1115,7 @@ titleplot <- ggplot() + geom_point(aes(1,1), colour="white") +
 ```
 
 ``` r
-ggCV_CVS_M <- grid.arrange(p1c, titleplot, pc, p2c, ncol=2, nrow=2, widths=c(5, 2), heights=c(2, 5))
+ggCV_CVS_M <- grid.arrange(p1c, titleplot, pc, p2c, ncol=2, nrow=2, widths=c(5, 2), heights=c(2.5, 5))
 ```
 
 ``` r
@@ -1214,7 +1159,7 @@ cell2_reg %>%
   stat_smooth()
 ```
 
-\-RMSE-
+-RMSE-
 
 ``` r
 models = vector(mode = "list", length = 6) 
@@ -1234,7 +1179,26 @@ CV_output_Placenta_Meth = xval.glm(data = Reg_Pheno_Placenta_ITU_reduced_filtere
 save(CV_output_Placenta_Meth, file="Results/RData/CV_output_Placenta_Meth.Rdata")
 ```
 
-\-RMSE- see if inclusion of case/control changes something
+get adjusted R2 from winning model
+
+``` r
+rsq(glm(models[[6]], data= Reg_Pheno_Placenta_ITU_reduced_filtered),adj=TRUE,type='v')
+```
+
+``` r
+summary(glm(models[[6]], data= Reg_Pheno_Placenta_ITU_reduced_filtered))
+```
+
+``` r
+# difference null and residual variance
+28342062-2080515
+424-411
+#p-value = 1 - pchisq(deviance, degrees of freedom)
+1-pchisq(26261547, 13)
+# -> significant
+```
+
+-RMSE- see if inclusion of case/control changes something
 
 ``` r
 models = vector(mode = "list", length = 6) 
@@ -1254,19 +1218,6 @@ CV_output_Placenta_Meth_casecontrol = xval.glm(data = Reg_Pheno_Placenta_ITU_red
 save(CV_output_Placenta_Meth_casecontrol, file="Results/RData/CV_output_Placenta_Meth_casecontrol.Rdata")
 ```
 
-``` r
-summary(glm(models[[6]], data= Reg_Pheno_Placenta_ITU_reduced_filtered))
-```
-
-``` r
-# difference null and residual variance
-28342062-2080515
-424-411
-#p-value = 1 - pchisq(deviance, degrees of freedom)
-1-pchisq(26261547, 13)
-# -> significant
-```
-
 *Plots*
 
 ``` r
@@ -1283,8 +1234,10 @@ pp <- CV_output_Placenta_Meth[["box.plot"]]
 ``` r
 pp1 <- pp1 +
   theme_minimal()+
-  theme(axis.text.x = element_text(size=10), axis.title.y = element_text(size=10), axis.text.y = element_text(size=10), legend.position="none")+
-  labs(tag = "b", title="Placenta (ITU)")
+  theme(axis.text.x = element_text(size=8), axis.title.y = element_text(size=8), axis.text.y = element_text(size=5), legend.text=element_text(size=8), legend.title=element_text(size=8), legend.key.size = unit(0.2, 'cm'))+
+  scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.25))+
+  labs(tag = "b", title="Placenta (ITU)")+
+  scale_color_discrete(name="Models",labels=c("Model 1", "Model 2", "Model 3", "Model 4", "Model 5", "Model 6"))
 ```
 
 ``` r
@@ -1320,7 +1273,7 @@ titleplot <- ggplot() + geom_point(aes(1,1), colour="white") +
 ```
 
 ``` r
-ggCV_PlacentaITU_M <- grid.arrange(pp1, titleplot, pp, pp2, ncol=2, nrow=2, widths=c(5, 2), heights=c(2, 5))
+ggCV_PlacentaITU_M <- grid.arrange(pp1, titleplot, pp, pp2, ncol=2, nrow=2, widths=c(5, 2), heights=c(2.5, 5))
 ```
 
 ``` r
@@ -1362,7 +1315,7 @@ cell2_reg %>%
   stat_smooth()
 ```
 
-\-RMSE-
+-RMSE-
 
 ``` r
 # Cross-validation
@@ -1379,11 +1332,10 @@ models[[6]] = PC_methB1 ~ C1 + C2 + Gestational_Age + Child_Sex + PC1_ethnicity 
 CV_output_Placenta_predo_meth = xval.glm(data = Reg_Pheno_Placenta_PREDO, models, folds = 10, repeats = 500, seed = 200)
 ```
 
-\[ 4\] PC\_methB1 \~ Trophoblasts + Stromal + Hofbauer + Endothelial |
-78% | 107.073 | 111.436 | 121.685 |
+get adjusted R2 from winning model
 
 ``` r
-save(CV_output_Placenta_predo_meth, file="Results/RData/CV_output_Placenta_predo_meth.Rdata")
+rsq(glm(models[[4]], data= Reg_Pheno_Placenta_PREDO),adj=TRUE,type='v')
 ```
 
 ``` r
@@ -1397,6 +1349,10 @@ summary(glm(models[[4]], data= Reg_Pheno_Placenta_PREDO))
 #p-value = 1 - pchisq(deviance, degrees of freedom)
 1-pchisq(7889407, 8)
 # -> significant
+```
+
+``` r
+save(CV_output_Placenta_predo_meth, file="Results/RData/CV_output_Placenta_predo_meth.Rdata")
 ```
 
 *Plots*
@@ -1415,8 +1371,10 @@ p <- CV_output_Placenta_predo_meth[["box.plot"]]
 ``` r
 p1 <- p1 +
   theme_minimal()+
-  theme(axis.text.x = element_text(size=10), axis.title.y = element_text(size=10), axis.text.y = element_text(size=10), legend.position="none")+
-  labs(tag = "c ", title="Placenta (PREDO)")
+  theme(axis.text.x = element_text(size=8), axis.title.y = element_text(size=8), axis.text.y = element_text(size=5), legend.text=element_text(size=8), legend.title=element_text(size=8), legend.key.size = unit(0.2, 'cm'))+
+  scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.25))+
+  labs(tag = "c ", title="Placenta (PREDO)")+
+    scale_color_discrete(name="Models",labels=c("Model 1", "Model 2", "Model 3", "Model 4", "Model 5", "Model 6"))
 ```
 
 ``` r
@@ -1452,7 +1410,7 @@ titleplot <- ggplot() + geom_point(aes(1,1), colour="white") +
 ```
 
 ``` r
-ggCV_PlacentaPREDO_M <- grid.arrange(p1, titleplot, p, p2, ncol=2, nrow=2, widths=c(5, 2), heights=c(2, 5))
+ggCV_PlacentaPREDO_M <- grid.arrange(p1, titleplot, p, p2, ncol=2, nrow=2, widths=c(5, 2), heights=c(2.5, 5))
 ```
 
 ``` r
@@ -1495,7 +1453,7 @@ cell2_reg %>%
   theme_bw()
 ```
 
-\-RMSE-
+-RMSE, model with all samples-
 
 ``` r
 # Cross-validation
@@ -1516,7 +1474,52 @@ CV_output_Placenta_BET_meth = xval.glm(data = Reg_Pheno_Placenta_BET, models, fo
 save(CV_output_Placenta_BET_meth, file="Results/RData/CV_output_Placenta_BET_meth.Rdata")
 ```
 
-\-RMSE- with BET status included
+*identify conspicious samples* extract ref-based cell types
+
+``` r
+refbased_cells_Pheno_BET_filtered <- Pheno_Placenta_BET_filtered[ ,c(names_refbased_cells, "Sample_Name")]
+```
+
+IQR \> 3
+
+``` r
+IQR_outliers3_refbased_cells_Pheno_BET_filtered <- cbind(data.frame(sapply(refbased_cells_Pheno_BET_filtered[,!names(refbased_cells_Pheno_BET_filtered) %in% "Sample_Name"], function(x) is_outlier(x, coef=3))), refbased_cells_Pheno_BET_filtered$Sample_Name)
+
+names(IQR_outliers3_refbased_cells_Pheno_BET_filtered)[names(IQR_outliers3_refbased_cells_Pheno_BET_filtered) == "refbased_cells_Pheno_BET_filtered$Sample_Name"] <- "Sample_Name"
+```
+
+``` r
+IQR_outliers3_names <- unique(c(IQR_outliers3_refbased_cells_Pheno_BET_filtered[IQR_outliers3_refbased_cells_Pheno_BET_filtered$nRBC == TRUE, "Sample_Name"], IQR_outliers3_refbased_cells_Pheno_BET_filtered[IQR_outliers3_refbased_cells_Pheno_BET_filtered$Hofbauer == TRUE, "Sample_Name"]))
+```
+
+exclude the 5 outliers in Hofbauer & nRBC
+
+``` r
+Reg_Pheno_Placenta_BET_cleaned <- Reg_Pheno_Placenta_BET[! Reg_Pheno_Placenta_BET$Sample_Name %in% IQR_outliers3_names, ]
+```
+
+-RMSE- with ‘cleaned’ model
+
+``` r
+# Cross-validation
+models = vector(mode = "list", length = 6) 
+models[[1]] = PC_methB1 ~ 1
+models[[2]] = PC_methB1 ~ gestage_weeks + Sex +PC1_ethnicity + PC2_ethnicity + PC3_ethnicity + PC4_ethnicity 
+
+models[[3]] = PC_methB1 ~ Trophoblasts + Stromal + Hofbauer + Endothelial + Syncytiotrophoblast+ nRBC
+models[[4]] = PC_methB1 ~ Trophoblasts + Stromal + Hofbauer + Endothelial + Syncytiotrophoblast+ nRBC+ gestage_weeks + Sex +PC1_ethnicity + PC2_ethnicity + PC3_ethnicity + PC4_ethnicity 
+
+models[[5]] = PC_methB1 ~ C1 + C2 + C3
+models[[6]] = PC_methB1 ~ C1 + C2+ C3 + gestage_weeks + Sex +PC1_ethnicity + PC2_ethnicity + PC3_ethnicity + PC4_ethnicity
+
+CV_output_Placenta_BET_meth_cleaned = xval.glm(data = Reg_Pheno_Placenta_BET_cleaned, models, folds = 10, repeats = 500, seed = 200)
+```
+
+``` r
+save(CV_output_Placenta_BET_meth_cleaned, file="Results/RData/CV_output_Placenta_BET_meth_cleaned.Rdata")
+```
+
+-RMSE- with ‘cleaned model’ and BET status included
 
 ``` r
 # Cross-validation
@@ -1530,40 +1533,48 @@ models[[4]] = PC_methB1 ~ Trophoblasts + Stromal + Hofbauer + Endothelial + Sync
 models[[5]] = PC_methB1 ~ C1 + C2 + C3
 models[[6]] = PC_methB1 ~ C1 + C2+ C3 + gestage_weeks + Sex +PC1_ethnicity + PC2_ethnicity + PC3_ethnicity + PC4_ethnicity+ group
 
-CV_output_Placenta_BET_meth_group = xval.glm(data = Reg_Pheno_Placenta_BET, models, folds = 10, repeats = 500, seed = 200)
+CV_output_Placenta_BET_meth_group_cleaned = xval.glm(data = Reg_Pheno_Placenta_BET_cleaned, models, folds = 10, repeats = 500, seed = 200)
+```
+
+get adjusted R2 from winning model
+
+``` r
+rsq(glm(models[[3]], data= Reg_Pheno_Placenta_BET_cleaned),adj=TRUE,type='v')
 ```
 
 ``` r
-summary(glm(models[[4]], data= Reg_Pheno_Placenta_BET))
+summary(glm(models[[3]], data= Reg_Pheno_Placenta_BET_cleaned))
 ```
 
 ``` r
 # difference null and residual variance
-6809574-1000025
-135-124
+6621201-932287
+130-126
 #p-value = 1 - pchisq(deviance, degrees of freedom)
-1-pchisq(5809549, 11)
+1-pchisq(5688914, 4)
 # -> significant
 ```
 
 *Plots*
 
 ``` r
-load("Results/RData/CV_output_Placenta_BET_meth.Rdata")
+load("Results/RData/CV_output_Placenta_BET_meth_cleaned.Rdata")
 ```
 
 ``` r
 # this is how plots were defined in original package function
-pe2 <- CV_output_Placenta_BET_meth[["den.plot"]]
-pe1 <- CV_output_Placenta_BET_meth[["stab.plot"]]
-pe <- CV_output_Placenta_BET_meth[["box.plot"]]
+pe2 <- CV_output_Placenta_BET_meth_cleaned[["den.plot"]]
+pe1 <- CV_output_Placenta_BET_meth_cleaned[["stab.plot"]]
+pe <- CV_output_Placenta_BET_meth_cleaned[["box.plot"]]
 ```
 
 ``` r
 pe1 <- pe1 +
   theme_minimal()+
-  theme(axis.text.x = element_text(size=10), axis.title.y = element_text(size=11), axis.text.y = element_text(size=10), legend.position="none")+
-  labs(tag = "d ", title="Placenta (BET)")
+  theme(axis.text.x = element_text(size=8), axis.title.y = element_text(size=8), axis.text.y = element_text(size=5),legend.text=element_text(size=8), legend.title=element_text(size=8), legend.key.size = unit(0.2, 'cm'))+
+  labs(tag = "d ", title="Placenta (BET)")+
+  scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.25))+
+  scale_color_discrete(name="Models",labels=c("Model 1", "Model 2", "Model 3", "Model 4", "Model 5", "Model 6"))
 ```
 
 ``` r
@@ -1584,7 +1595,7 @@ pe2 <- pe2 +
 my.ylab <- "RMSE" 
 K <- 10
 repeats <- 500
-wins <- CV_output_Placenta_BET_meth$wins
+wins <- CV_output_Placenta_BET_meth_cleaned$wins
 ```
 
 ``` r
@@ -1599,7 +1610,7 @@ titleplot <- ggplot() + geom_point(aes(1,1), colour="white") +
 ```
 
 ``` r
-ggCV_PlacentaBET_M <- grid.arrange(pe1, titleplot, pe, pe2, ncol=2, nrow=2, widths=c(5, 2), heights=c(2, 5))
+ggCV_PlacentaBET_M <- grid.arrange(pe1, titleplot, pe, pe2, ncol=2, nrow=2, widths=c(5, 2), heights=c(2.5, 5))
 ```
 
 ``` r
@@ -1608,9 +1619,139 @@ ggsave("Results/CV_PlacentaBET_M.pdf",
        width=84, height=50, units="mm", dpi=600, scale=2)
 ```
 
+### Make outlier plot for BET CV Model
+
+this is an adaption to the plotting with facets I need only for this
+plot:
+
+``` r
+Facet <- ggproto(
+  init_scales = function(layout, x_scale = NULL, y_scale = NULL, params) {
+    scales <- list()
+    if (!is.null(x_scale)) {
+      scales$x <- plyr::rlply(max(layout$SCALE_X), x_scale$clone())
+    }
+    if (!is.null(y_scale)) {
+      scales$y <- plyr::rlply(max(layout$SCALE_Y), y_scale$clone())
+    }
+    scales
+  },
+)
+
+scale_override <- function(which, scale) {
+  if(!is.numeric(which) || (length(which) != 1) || (which %% 1 != 0)) {
+    stop("which must be an integer of length 1")
+  }
+  
+  if(is.null(scale$aesthetics) || !any(c("x", "y") %in% scale$aesthetics)) {
+    stop("scale must be an x or y position scale")
+  }
+  
+  structure(list(which = which, scale = scale), class = "scale_override")
+}
+
+CustomFacetWrap <- ggproto(
+  "CustomFacetWrap", FacetWrap,
+  init_scales = function(self, layout, x_scale = NULL, y_scale = NULL, params) {
+    # make the initial x, y scales list
+    scales <- ggproto_parent(FacetWrap, self)$init_scales(layout, x_scale, y_scale, params)
+    
+    if(is.null(params$scale_overrides)) return(scales)
+    
+    max_scale_x <- length(scales$x)
+    max_scale_y <- length(scales$y)
+    
+    # ... do some modification of the scales$x and scales$y here based on params$scale_overrides
+    for(scale_override in params$scale_overrides) {
+      which <- scale_override$which
+      scale <- scale_override$scale
+      
+      if("x" %in% scale$aesthetics) {
+        if(!is.null(scales$x)) {
+          if(which < 0 || which > max_scale_x) stop("Invalid index of x scale: ", which)
+          scales$x[[which]] <- scale$clone()
+        }
+      } else if("y" %in% scale$aesthetics) {
+        if(!is.null(scales$y)) {
+          if(which < 0 || which > max_scale_y) stop("Invalid index of y scale: ", which)
+          scales$y[[which]] <- scale$clone()
+        }
+      } else {
+        stop("Invalid scale")
+      }
+    }
+    
+    # return scales
+    scales
+  }
+)
+
+facet_wrap_custom <- function(..., scale_overrides = NULL) {
+  # take advantage of the sanitizing that happens in facet_wrap
+  facet_super <- facet_wrap(...)
+  
+  # sanitize scale overrides
+  if(inherits(scale_overrides, "scale_override")) {
+    scale_overrides <- list(scale_overrides)
+  } else if(!is.list(scale_overrides) || 
+            !all(vapply(scale_overrides, inherits, "scale_override", FUN.VALUE = logical(1)))) {
+    stop("scale_overrides must be a scale_override object or a list of scale_override objects")
+  }
+  
+  facet_super$params$scale_overrides <- scale_overrides
+  
+  ggproto(NULL, CustomFacetWrap,
+    shrink = facet_super$shrink,
+    params = facet_super$params
+  )
+}
+```
+
+``` r
+plot_scat_refbased_bet <- Reg_Pheno_Placenta_BET[,c("PC_methB1", names_refbased_cells)] %>%
+  gather(-PC_methB1, key = "var", value = "value") %>% 
+  ggplot(aes(x = value, y =PC_methB1)) +
+  facet_wrap(~ var, scales = "free_x") +
+  geom_point() +
+  theme_bw()+
+  labs(x="", y="PC1 methylation")+
+    theme(axis.text.x = element_text(size=6, angle=30, hjust=1), axis.title.x=element_text(size=6), axis.title.y = element_text(size=6), axis.text.y = element_text(size=6), plot.margin=unit(c(8,8,8,8),"points"), strip.text = element_text(size = 6))
+```
+
+``` r
+pe_o <- CV_output_Placenta_BET_meth[["box.plot"]]
+```
+
+``` r
+pe_o <- pe_o +
+  theme_minimal()+
+  theme(axis.text.x = element_text(size=8), axis.title.x=element_text(size=8), axis.title.y = element_text(size=8), axis.text.y = element_text(size=8), legend.position="none", axis.text.x.top = element_text(size=8))
+```
+
+``` r
+plot_box_refbased_bet <- boxplot_fun(x = names_refbased_cells, id = "Sample_Name", dat= Reg_Pheno_Placenta_BET)
+```
+
+``` r
+plot_scat_refbased_bet_custom <- plot_scat_refbased_bet +
+  facet_wrap_custom(~var, scales = "free", ncol = 3, scale_overrides = list(
+    scale_override(1, scale_x_continuous(breaks = c(0,0.05,0.10,0.15,0.20), limits=c(0,0.20), labels = label_number(accuracy = .01))),
+    scale_override(2, scale_x_continuous(breaks = c(0,0.01,0.02,0.03,0.04), limits=c(0,0.045), labels = label_number(accuracy = .01))),
+    scale_override(3, scale_x_continuous(breaks = c(0,0.01,0.02,0.03,0.04), limits=c(0,0.045), labels = label_number(accuracy = .01))),
+    scale_override(4, scale_x_continuous(breaks = c(0,0.05,0.10,0.15,0.20), limits=c(0,0.21), labels = label_number(accuracy = .01))),
+    scale_override(5, scale_x_continuous(breaks = c(0,0.20,0.40,0.60,0.80), limits=c(0,0.85), labels = label_number(accuracy = .01))),
+    scale_override(6, scale_x_continuous(breaks = c(0,0.10,0.20,0.30,0.40), limits=c(0,0.4), labels = label_number(accuracy = .01)))
+  ))
+```
+
+``` r
+ggsave("Results/BET_CV_Model_Outlier_Plots.pdf",
+       ggarrange(pe_o, plot_scat_refbased_bet_custom, plot_box_refbased_bet, ncol=2, nrow=2, labels = c("a", "b", "c"), heights = c(1,1,1), widths=c(1,1.2,1)), width=84, height=100, units="mm", dpi=600, scale=2)
+```
+
 ## arrange plots together
 
-*Fig. 2* Cross-Validation Models
+*Fig. 3* Cross-Validation Models
 
 ``` r
 ggA_M <- grid.arrange(arrangeGrob(ggCV_CVS_M, ggCV_PlacentaITU_M, ggCV_PlacentaPREDO_M, ggCV_PlacentaBET_M, nrow=4))
@@ -1620,6 +1761,8 @@ ggA_M <- grid.arrange(arrangeGrob(ggCV_CVS_M, ggCV_PlacentaITU_M, ggCV_PlacentaP
 ggsave("Results/Models_Meth_combined.pdf",
        grid.arrange(arrangeGrob(ggCV_CVS_M, ggCV_PlacentaITU_M, ggCV_PlacentaPREDO_M, ggCV_PlacentaBET_M, nrow=4)), width=84, height=180, units="mm", dpi=600, scale=2)
 ```
+
+[to the top](#top)
 
 # Check how methylation of single CpGs can be predicted using cell types
 
@@ -1913,6 +2056,8 @@ M_CpGs_Placenta_PREDO <- ggarrange(cpgs_hist_placenta_predo_rb_filtered, cpgs_hi
 M_CpGs_Placenta_PREDO
 ```
 
+[to the top](#top)
+
 ## Placenta BET
 
 ``` r
@@ -2012,7 +2157,7 @@ M_CpGs_Placenta_BET
 
 ## arrange Model figures
 
-*Fig S2* single CpG prediction models
+single CpG prediction models
 
 ``` r
 M_CpGs_R2 <- ggarrange(M_CpGs_CVS, M_CpGs_Placenta_ITU, M_CpGs_Placenta_PREDO, M_CpGs_Placenta_BET, nrow = 4, align="hv")
@@ -2030,27 +2175,21 @@ ggsave("Results/CpGs_R2_combined.pdf",
 
 ## extract CpGs
 
-<!-- load R2 (predicted by RPC cell types) -->
-
-<!-- ```{r} -->
-
-<!-- # reference-based -->
-
-<!-- load("Results/RData/results_cvs_itu_lm_cpg_rb_filtered.Rdata") -->
-
-<!-- load("Results/RData/results_placenta_itu_lm_cpg_rb_filtered.Rdata") -->
-
-<!-- load("Results/RData/results_placenta_predo_lm_cpg_rb_filtered.Rdata") -->
-
-<!-- load("Results/RData/results_placenta_BET_lm_cpg_rb_filtered.Rdata") -->
-
-<!-- ``` -->
+load R2 (predicted by RPC cell types)
 
 ``` r
-quantile(results_cvs_itu_lm_cpg_rb_filtered$adj.Rsquared, probs=c(0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0))
-quantile(results_placenta_itu_lm_cpg_rb_filtered$adj.Rsquared, probs=c(0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0))
-quantile(results_placenta_predo_lm_cpg_rb_filtered$adj.Rsquared, probs=c(0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0))
-quantile(results_placenta_BET_lm_cpg_rb_filtered$adj.Rsquared, probs=c(0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0))
+# reference-based
+load("Results/RData/results_cvs_itu_lm_cpg_rb_filtered.Rdata")
+load("Results/RData/results_placenta_itu_lm_cpg_rb_filtered.Rdata")
+load("Results/RData/results_placenta_predo_lm_cpg_rb_filtered.Rdata")
+load("Results/RData/results_placenta_BET_lm_cpg_rb_filtered.Rdata")
+```
+
+``` r
+q9_cvs_rb <- quantile(results_cvs_itu_lm_cpg_rb_filtered$adj.Rsquared, probs=0.9)
+q9_placenta_itu_rb <- quantile(results_placenta_itu_lm_cpg_rb_filtered$adj.Rsquared, probs=0.9)
+q9_placenta_predo_rb <- quantile(results_placenta_predo_lm_cpg_rb_filtered$adj.Rsquared, probs=0.9)
+q9_placenta_bet_rb <- quantile(results_placenta_BET_lm_cpg_rb_filtered$adj.Rsquared, probs=0.9)
 ```
 
 ## genes of all CpGs that overlap between data sets
@@ -2165,6 +2304,8 @@ CpGs_R30_Genes_refbased <- overlap_cpgs_genes_filtered[ ,c("CpG", "GeneSymbol")]
 write.xlsx2(CpGs_R30_Genes_refbased, "Results/List_CpGs_R30_Genes_refbased.xlsx", sheetName = "List", col.names = TRUE, row.names = FALSE, append = FALSE)
 ```
 
+[to the top](#top)
+
 ## Tissue-specific Gene Enrichment
 
 The TissueEnrich R package is used to calculate enrichment of
@@ -2259,30 +2400,20 @@ compared to the average levels in all other tissues, and that are not
 considered Tissue Enriched or Group Enriched.
 
 ``` r
-ggplot(enrichmentOutput_filtered,aes(x=reorder(Tissue,-Log10PValue),y=Log10PValue,label = Tissue.Specific.Genes,fill = Tissue))+
+tissue_enrich_main_plot_refbased <- ggplot(enrichmentOutput_filtered,aes(x=reorder(Tissue,-Log10PValue),y=Log10PValue,label = Tissue.Specific.Genes,fill = Tissue))+
   geom_bar(stat = 'identity')+
   labs(x='', y = '-log10 (p-adjusted)')+
+  scale_y_continuous(breaks = c(0, 2, 4, 6), limits = c(0,8), expand = c(0,0))+
   theme_bw()+
   theme(legend.position="none")+
   theme(plot.title = element_text(hjust = 0.5,size = 10),axis.title = element_text(size=10))+
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),panel.grid.major= element_blank(),panel.grid.minor = element_blank(), plot.margin=unit(c(0,0,0,1.2),"cm"))+
-  geom_hline(yintercept=2, linetype="dashed", color = "black")
-```
-
-``` r
-tissue_enrich_main_plot <- ggplot(enrichmentOutput_filtered,aes(x=reorder(Tissue,-Log10PValue),y=Log10PValue,label = Tissue.Specific.Genes,fill = Tissue))+
-  geom_bar(stat = 'identity')+
-  labs(x='', y = '-log10 (p-adjusted)')+
-  theme_bw()+
-  theme(legend.position="none")+
-  theme(plot.title = element_text(hjust = 0.5,size = 10),axis.title = element_text(size=10))+
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),panel.grid.major= element_blank(),panel.grid.minor = element_blank(), plot.margin=unit(c(0,0,0,1.2),"cm"))+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),panel.grid.major= element_blank(),panel.grid.minor = element_blank(), plot.margin=unit(c(1,1,1,2),"cm"))+
   geom_hline(yintercept=2, linetype="dashed", color = "black")
 
 ggsave("Results/TissueEnrichment_CpGGenes.pdf",
-       tissue_enrich_main_plot, width=84, height=50, units="mm", dpi=600, scale=2, device = cairo_pdf)
+       tissue_enrich_main_plot_refbased, width=84, height=50, units="mm", dpi=600, scale=2, device = cairo_pdf)
 
-ggsave(tissue_enrich_main_plot, filename = "Results/TissueEnrichment_CpGGenes.png", dpi = 300, type = "cairo",
+ggsave(tissue_enrich_main_plot_refbased, filename = "Results/TissueEnrichment_CpGGenes.png", dpi = 300, type = "cairo",
        width = 8, height = 5, units = "in")
 ```
 
@@ -2340,195 +2471,6 @@ write.xlsx(groupInf_Placenta_filtered,"Results/genes_cpgs_placenta_enriched_filt
 # 186 genes highly important / specific for placenta 
 ```
 
-<!-- ### resampling -->
-
-<!-- *with overlapping genes, not filtered for R2 (= background in main analysis)* -->
-
-<!-- ```{r} -->
-
-<!-- load("Results/RData/genes_all_Symbol_filtered.Rdata") #20037 -->
-
-<!-- ``` -->
-
-<!-- random gene set with same size as overlapping genes with high R2 (>.30, n = 8.511) from overlapping genes not filtered for R2. -->
-
-<!-- -> See if we see same effect in random gene set with same size (check for randomness) -->
-
-<!-- <!-- ```{r} -->
-
-–\>
-<!--   <!-- sample_list <- data.frame(matrix(NA, nrow = length(genes_overlap_Symbol_filtered), ncol = 100)) # 8511 -->
-–\>
-
-<!-- <!-- nruns=100 -->
-
-–\> <!--   <!-- for (i in  1:nruns){ --> –\>
-<!--       <!--   for (colIdx in 1:ncol(sample_list)) { --> –\>
-<!--           <!--   subset_genes = sample(genes_all_Symbol_filtered,size=length(genes_overlap_Symbol_filtered), replace=F) -->
-–\> <!--             <!--   sample_list[ ,colIdx] = subset_genes --> –\>
-<!--               <!--   } --> –\> <!--       <!-- } --> –\>
-
-<!--   <!-- save(sample_list, file="Results/PlacentaTissueEnrich_resampling/overlap_R_genes/sample_list_genes.Rdata") -->
-
-–\> <!--   <!-- ``` --> –\>
-
-<!-- * from genes_all_Symbol (overlapping genes between data sets, but not filtered for R2) I sample a set of genes of length 8.511 a 100 times -->
-
-<!-- <!-- ```{r} -->
-
-–\>
-<!--   <!-- list_output <- data.frame(matrix(NA, nrow = length(genes_overlap_Symbol_filtered), ncol = 100)) -->
-–\>
-
-<!--   <!-- for (colIdx in 1:ncol(sample_list)) { -->
-
-–\>
-<!--       <!--   genes_overlap_input <-GeneSet(geneIds=sample_list[ ,colIdx],organism="Homo Sapiens",geneIdType=SymbolIdentifier()) -->
-–\>
-<!--         <!--   genes_overlap_background <-GeneSet(geneIds=genes_all_Symbol_filtered,organism="Homo Sapiens",geneIdType=SymbolIdentifier()) -->
-–\>
-<!--           <!--   output_GEnrich <- teEnrichment(inputGenes = genes_overlap_input, backgroundGenes = genes_overlap_background, rnaSeqDataset = 1) -->
-–\>
-<!--             <!--   save(output_GEnrich, file=paste("Results/PlacentaTissueEnrich_resampling/overlap_R_genes/enrich_resample/output_GEnrich",colIdx,".Rdata", sep="")) -->
-–\> <!--             <!-- } --> –\> <!--   <!-- ``` --> –\>
-
-<!-- * for all 100 sample lists I run the teEnrichment function -->
-
-<!-- load GEnrich lists: -->
-
-<!-- ```{r} -->
-
-<!-- FileList <- list.files(path="Results/PlacentaTissueEnrich_resampling/overlap_R_genes/enrich_resample") -->
-
-<!-- ``` -->
-
-<!-- ```{r, warning=FALSE} -->
-
-<!-- setwd("Results/PlacentaTissueEnrich_resampling/overlap_R_genes/enrich_resample") -->
-
-<!-- for (i in 1:length(FileList)) { -->
-
-<!--   load(FileList[i]) -->
-
-<!--   assign(paste("Output",i,sep=""),output_GEnrich) -->
-
-<!-- } -->
-
-<!-- ``` -->
-
-<!-- save the data frames with info for plots -->
-
-<!-- <!-- ```{r} -->
-
-–\> <!--   <!-- nruns=100 --> –\> <!--   <!-- for (i in  1:nruns){ -->
-–\>
-<!--       <!-- targetOutput <- eval(parse(text=paste("Output",i,sep=""))) -->
-–\>
-
-<!--         <!-- TseEnrichmentOutput<-targetOutput[[1]] -->
-
-–\>
-<!--           <!-- TenrichmentOutput<-setNames(data.frame(assay(TseEnrichmentOutput),row.names = rowData(TseEnrichmentOutput)[,1]), colData(TseEnrichmentOutput)[,1]) -->
-–\>
-<!--             <!-- TenrichmentOutput$Tissue<-row.names(TenrichmentOutput) -->
-–\>
-
-<!--               <!-- save(TenrichmentOutput, file=paste("Results/PlacentaTissueEnrich_resampling/overlap_R_genes/enrich_resample_plots/RData/TenrichmentOutput",i,".Rdata", sep="")) -->
-
-–\> <!--               <!-- } --> –\> <!--   <!-- ``` --> –\>
-
-<!--   read in the plot info data -->
-
-<!-- ```{r} -->
-
-<!-- FileList_plots <- list.files(path="Results/PlacentaTissueEnrich_resampling/overlap_R_genes/enrich_resample_plots/RData/") -->
-
-<!-- ``` -->
-
-<!-- ```{r, warning=FALSE} -->
-
-<!-- setwd("Results/PlacentaTissueEnrich_resampling/overlap_R_genes/enrich_resample_plots/RData") -->
-
-<!-- for (i in 1:length(FileList_plots)) { -->
-
-<!--   load(FileList_plots[i]) -->
-
-<!--   assign(paste("PlotOutput",i,sep=""),TenrichmentOutput) -->
-
-<!-- } -->
-
-<!-- ``` -->
-
-<!-- * PlotOutput are the Data frames with the info for plots (and p values) -->
-
-<!-- make plots and save -->
-
-<!-- <!-- ```{r} -->
-
-–\> <!--   <!-- nruns=100 --> –\> <!--   <!-- for (i in  1:nruns){ -->
-–\>
-<!--       <!-- PlotInput <- eval(parse(text=paste("PlotOutput",i,sep=""))) -->
-–\>
-
-<!--         <!-- pdf(paste("Results/PlacentaTissueEnrich_resampling/overlap_R_genes/enrich_resample_plots/Plot",i,".pdf", sep="")) -->
-
-–\>
-<!--         <!-- print(ggplot(PlotInput,aes(x=reorder(Tissue,-Log10PValue),y=Log10PValue,label = Tissue.Specific.Genes,fill = Tissue))+ -->
-–\>
-<!--                      <!--       geom_bar(stat = 'identity')+ -->
-–\>
-<!--                      <!--       labs(x='', y = '-LOG10(P-Adjusted)')+ -->
-–\> <!--                      <!--       theme_bw()+ --> –\>
-<!--                      <!--       theme(legend.position="none")+ -->
-–\>
-<!--                      <!--       theme(plot.title = element_text(hjust = 0.5,size = 20),axis.title = element_text(size=15))+ -->
-–\>
-<!--                      <!--       theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),panel.grid.major= element_blank(),panel.grid.minor = element_blank())) -->
-–\> <!--         <!-- dev.off() --> –\> <!--         <!-- } --> –\>
-<!--   <!-- ``` --> –\>
-
-<!-- empirical p value -->
-
-<!-- ```{r} -->
-
-<!-- # the "original" p value from our analysis filtered for R2 was 4.258701     (log10p_placenta_enrich) -->
-
-<!-- # count how many times this enrichment p-value is <= the p-value of the random resamples -->
-
-<!-- nrun = 100 -->
-
-<!-- count <- 0 -->
-
-<!-- for (i in  1:nrun){ -->
-
-<!--   resample <- eval(parse(text=paste("PlotOutput",i,sep=""))) -->
-
-<!--   log_10p_random <- resample["Placenta", "Log10PValue"] -->
-
-<!--   if(log_10p_random <= 4.258701){ -->
-
-<!--     count <- count + 1} -->
-
-<!-- } -->
-
-<!-- ``` -->
-
-<!-- ```{r} -->
-
-<!-- # count is in how many of the 100 re-samples the p-value is < the target p value -->
-
-<!-- (count+1)/101 -->
-
-<!-- # empirical p value is 1 -->
-
-<!-- ``` -->
-
-<!-- ```{r} -->
-
-<!-- rm(list=ls()) -->
-
-<!-- ``` -->
-
 [to the top](#top)
 
 ## Placenta cell enrichment
@@ -2550,13 +2492,35 @@ highest confidence in results that are consistent across datasets.
 
 INPUT:
 
-  - gene set: genes with R2 \> .30 that overlap between data sets
-    (genes\_overlap\_Sympbol\_filtered)  
-  - background: genes that overlap between data sets
-    (genes\_all\_Symbol\_filtered)
+-   gene set: genes with R2 > .30 that overlap between data sets
+    (genes_overlap_Sympbol_filtered)  
+-   background: genes that overlap between data sets
+    (genes_all_Symbol_filtered)
 
-![Cell Enrichment in
-Genes](Results/PlacentaCellEnrich_Tool/refbased/Vento-Tormo.png)
+``` r
+cell_enrichment_results_refbased <- read_excel("Results/PlacentaCellEnrich_Tool/refbased/CellSpecificGeneEnrichment-VentoTormo.xlsx", col_names = T)
+cell_enrichment_results_refbased$`-Log10PValue` <- as.numeric(cell_enrichment_results_refbased$`-Log10PValue`)
+```
+
+``` r
+cell_enrichment_colors_cells <- cell_enrichment_results_refbased[,"Cell"]
+```
+
+``` r
+cell_enrichment_results_refbased <- merge(cell_enrichment_results_refbased, cell_enrichment_colors_cells, by="Cell")
+```
+
+``` r
+plot_cell_enrichment_refbased <- ggplot2::ggplot(cell_enrichment_results_refbased, aes(x = reorder(Cell, -`-Log10PValue`, sum), y= `-Log10PValue`, fill=Cell)) +
+geom_bar(stat = 'identity')+ 
+xlab("") + ylab("-log10 (p-adjusted)")+
+scale_y_continuous(breaks = round(seq(0, 14, by = 2),1),limits = c(0,16), expand = c(0,0))+
+theme_bw()+
+theme(legend.position="none")+
+theme(plot.title = element_text(hjust = 0.5,size = 10),axis.title = element_text(size=10))+
+theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),panel.grid.major= element_blank(),panel.grid.minor = element_blank(), plot.margin=unit(c(1,1,1,2),"cm"))+
+geom_hline(yintercept=2, linetype="dashed", color = "black")
+```
 
 [to the top](#top)
 
@@ -2566,25 +2530,27 @@ Genes](Results/PlacentaCellEnrich_Tool/refbased/Vento-Tormo.png)
 
 load R2 (predicted by RPC cell types)
 
-<!-- ```{r} -->
+``` r
+load("Results/RData/results_cvs_itu_lm_cpg_rf_filtered.Rdata")
+load("Results/RData/results_placenta_itu_lm_cpg_rf_filtered.Rdata")
+load("Results/RData/results_placenta_predo_lm_cpg_rf_filtered.Rdata")
+load("Results/RData/results_placenta_BET_lm_cpg_rf_filtered.Rdata")
 
-<!-- load("Results/RData/results_cvs_itu_lm_cpg_rf_filtered.Rdata") -->
-
-<!-- load("Results/RData/results_placenta_itu_lm_cpg_rf_filtered.Rdata") -->
-
-<!-- load("Results/RData/results_placenta_predo_lm_cpg_rf_filtered.Rdata") -->
-
-<!-- load("Results/RData/results_placenta_BET_lm_cpg_rf_filtered.Rdata") -->
-
-<!-- load("Input_Data_prepared/genes_cpgs_fullinfo.Rdata") -->
-
-<!-- ``` -->
+load("Input_Data_prepared/genes_cpgs_fullinfo.Rdata")
+```
 
 ``` r
-quantile(results_cvs_itu_lm_cpg_rf_filtered$adj.Rsquared, probs=c(0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0))
-quantile(results_placenta_itu_lm_cpg_rf_filtered$adj.Rsquared, probs=c(0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0))
-quantile(results_placenta_predo_lm_cpg_rf_filtered$adj.Rsquared, probs=c(0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0))
-quantile(results_placenta_BET_lm_cpg_rf_filtered$adj.Rsquared, probs=c(0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0))
+q9_cvs_rf <- quantile(results_cvs_itu_lm_cpg_rf_filtered$adj.Rsquared, probs=0.9)
+q9_placenta_itu_rf <- quantile(results_placenta_itu_lm_cpg_rf_filtered$adj.Rsquared, probs=0.9)
+q9_placenta_predo_rf <- quantile(results_placenta_predo_lm_cpg_rf_filtered$adj.Rsquared, probs=0.9)
+q9_placenta_bet_rf <- quantile(results_placenta_BET_lm_cpg_rf_filtered$adj.Rsquared, probs=0.9)
+```
+
+mean of 90% quantiles in adjusted R2 of CpGs (refbased & reffree)
+
+``` r
+c9_rb_rf_r <- as.numeric(c(q9_cvs_rb, q9_placenta_itu_rb, q9_placenta_predo_rb, q9_placenta_bet_rb, q9_cvs_rf, q9_placenta_itu_rf, q9_placenta_predo_rf, q9_placenta_bet_rf))
+mean(c9_rb_rf_r)
 ```
 
 ## extract CpGs with R2 \> 30% that are in all data sets (ref-free)
@@ -2653,7 +2619,7 @@ write.xlsx2(CpGs_R30_Genes_reffree, "Results/List_CpGs_R30_Genes_reffree.xlsx", 
 
 ## Tissue-specific Gene Enrichment
 
-### genes with R2 \> .30 that overlap between the data sets against all genes that overlap between data sets
+### genes with R2 \> .30 that overlap between the data sets against all genes
 
 ``` r
 load("Results/RData/genes_all_Symbol_filtered.Rdata")
@@ -2698,34 +2664,21 @@ genes_not_ident_TissueEnrich_rf_filtered <- geneIds(output_GEnrich_rf_filtered[[
 ```
 
 ``` r
-ggplot(enrichmentOutput_rf_filtered,aes(x=reorder(Tissue,-Log10PValue),y=Log10PValue,label = Tissue.Specific.Genes,fill = Tissue))+
+tissueEnrichment_reffree_filtered <- ggplot(enrichmentOutput_rf_filtered,aes(x=reorder(Tissue,-Log10PValue),y=Log10PValue,label = Tissue.Specific.Genes,fill = Tissue))+
   geom_bar(stat = 'identity')+
   labs(x='', y = '-log10 (p-adjusted)')+
+  scale_y_continuous(breaks = c(0, 2, 4, 6), limits = c(0,8), expand = c(0,0))+
   theme_bw()+
   theme(legend.position="none")+
   theme(plot.title = element_text(hjust = 0.5,size = 10),axis.title = element_text(size=10))+
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1, size=10),panel.grid.major= element_blank(),panel.grid.minor = element_blank(), plot.margin=unit(c(0,0,0,1.2),"cm"))+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1, size=10),panel.grid.major= element_blank(),panel.grid.minor = element_blank(), plot.margin=unit(c(1,1,1,2),"cm"))+
   geom_hline(yintercept=2, linetype="dashed", color = "black")
-```
-
-``` r
-#png(file="Results/TissueEnrichment_CpGGenes_reffree.png", width= 3000, height=2000, res=600)
-TissueEnrichment_reffree_filtered <- ggplot(enrichmentOutput_rf_filtered,aes(x=reorder(Tissue,-Log10PValue),y=Log10PValue,label = Tissue.Specific.Genes,fill = Tissue))+
-  geom_bar(stat = 'identity')+
-  labs(x='', y = '-log10 (p-adjusted)')+
-  theme_bw()+
-  theme(legend.position="none")+
-  theme(plot.title = element_text(hjust = 0.5,size = 10),axis.title = element_text(size=12))+
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),panel.grid.major= element_blank(),panel.grid.minor = element_blank(), plot.margin=unit(c(0,0,0,1.2),"cm"))+
-  geom_hline(yintercept=2, linetype="dashed", color = "black")
-#dev.off()
 
 ggsave("Results/TissueEnrichment_CpGGenes_reffree.pdf",
-       TissueEnrichment_reffree_filtered, width=84, height=50, units="mm", dpi=600, scale=2, device = cairo_pdf)
+       tissueEnrichment_reffree_filtered, width=84, height=50, units="mm", dpi=600, scale=2, device = cairo_pdf)
 
-ggsave(TissueEnrichment_reffree_filtered, filename = "Results/TissueEnrichment_CpGGenes_reffree.png", dpi = 300, type = "cairo",
+ggsave(tissueEnrichment_reffree_filtered, filename = "Results/TissueEnrichment_CpGGenes_reffree.png", dpi = 300, type = "cairo",
        width = 8, height = 5, units = "in")
-# 
 ```
 
 get p value for placenta
@@ -2765,17 +2718,58 @@ unidentified_rf_filtered <- geneIds(output_GEnrich_rf_filtered[[4]])
 
 INPUT:
 
-  - gene set: genes with R2 \> .30 that overlap between data sets
-    (genes\_overlap\_Symbol\_rf\_filtered)  
-  - background: genes that overlap between data sets
-    (genes\_all\_Symbol\_filtered)
+-   gene set: genes with R2 > .30 that overlap between data sets
+    (genes_overlap_Symbol_rf_filtered)  
+-   background: genes that overlap between data sets
+    (genes_all_Symbol_filtered)
 
-![Cell Enrichment in
-Genes](Results/PlacentaCellEnrich_Tool/reffree/Vento-Tormo.png)
+``` r
+cell_enrichment_results_reffree <- read_excel("Results/PlacentaCellEnrich_Tool/reffree/CellSpecificGeneEnrichment-VentoTormo.xlsx", col_names = T)
+cell_enrichment_results_reffree$`-Log10PValue` <- as.numeric(cell_enrichment_results_reffree$`-Log10PValue`)
+```
+
+``` r
+cell_enrichment_results_reffree <- merge(cell_enrichment_results_reffree, cell_enrichment_colors_cells, by="Cell")
+```
+
+``` r
+plot_cell_enrichment_reffree <-
+ggplot2::ggplot(cell_enrichment_results_reffree, aes(x = reorder(Cell, -`-Log10PValue`, sum), y= `-Log10PValue`, fill=Cell)) +
+geom_bar(stat = 'identity')+ 
+xlab("") + ylab("-log10 (p-adjusted)")+
+scale_y_continuous(breaks = round(seq(0, 14, by = 2),1),limits = c(0,16), expand = c(0,0))+
+theme_bw()+
+theme(legend.position="none")+
+theme(plot.title = element_text(hjust = 0.5,size = 10),axis.title = element_text(size=10))+
+theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),panel.grid.major= element_blank(),panel.grid.minor = element_blank(), plot.margin=unit(c(1,1,1,2),"cm"))+
+geom_hline(yintercept=2, linetype="dashed", color = "black")
+```
+
+[to the top](#top)
+
+# save Tissue Enrichment Plot
+
+*Fig. 4*
+
+``` r
+ggsave("Results/Plots_tissue_Enrichment_combined.pdf",
+       ggarrange(tissue_enrich_main_plot_refbased, tissueEnrichment_reffree_filtered, ncol=1, labels = c("a", "b")), width=84, height=160, units="mm", dpi=600, scale=2)
+```
+
+# save Cell Enrichment Plot
+
+*Fig. 5*
+
+``` r
+ggsave("Results/Plots_Cell_Enrichment_combined.pdf",
+       ggarrange(plot_cell_enrichment_refbased, plot_cell_enrichment_reffree, ncol=1, labels = c("a", "b")), width=84, height=160, units="mm", dpi=600, scale=2)
+```
+
+[to the top](#top)
 
 # Plot Cell types (RPC, reference-based)
 
-*Fig. 5*
+*Fig. 6*
 
 RPC reference-based
 
@@ -3120,8 +3114,6 @@ grid.arrange(arrangeGrob(msd_plot_cells_cvs + theme(legend.position="none"),
 ```
 
 ``` r
-#pdf(file="Results/RPC_Placenta_combined_cells_estimate.pdf",width=680,height=700)
-
 ggsave("Results/RPC_Placenta_combined_cells_estimate.pdf",
 grid.arrange(arrangeGrob(msd_plot_cells_cvs + theme(legend.position="none"),
               CVS_ITU_RPC_Plot_arrange + theme(legend.position="none", axis.text.y = element_blank()),          
@@ -3133,7 +3125,6 @@ grid.arrange(arrangeGrob(msd_plot_cells_cvs + theme(legend.position="none"),
               Placenta_BET_RPC_Plot_arrange + theme(legend.position="none", axis.text.y = element_blank()),
               nrow=4),
              gglegend, nrow=2, heights=c(15, 2)), width=84, height=150, units="mm", dpi=600, scale=2, device = cairo_pdf)
-#dev.off()
 ```
 
 [to the top](#top)
@@ -3162,7 +3153,7 @@ colwise(median)(Pheno_CVS_ITU_filtered[c("Syncytiotrophoblast")])
 
 ``` r
 Pheno_Placenta_CVS_ITU_filtered <- merge(Pheno_CVS_ITU_filtered, Pheno_Placenta_ITU_reduced_filtered, by="Sample_Name") # n = 85
-n_Placenta_CVS_filtered <- 85
+n_Placenta_CVS_filtered <- nrow(Pheno_Placenta_CVS_ITU_filtered)
 ```
 
 ``` r
@@ -3241,13 +3232,13 @@ make one data frame
 
 ``` r
 RPC_Cells_ITU <- Pheno_Placenta_ITU_reduced_filtered[ ,names_refbased_cells]
-RPC_Cells_ITU$group <- rep("ITU", 470)
+RPC_Cells_ITU$group <- rep("ITU", nrow(RPC_Cells_ITU))
 
 RPC_Cells_PREDO <- Pheno_Placenta_PREDO_filtered[ ,names_refbased_cells]
-RPC_Cells_PREDO$group <- rep("PREDO", 139)
+RPC_Cells_PREDO$group <- rep("PREDO", nrow(RPC_Cells_PREDO))
 
 RPC_Cells_BET <- Pheno_Placenta_BET_filtered[ ,names_refbased_cells]
-RPC_Cells_BET$group <- rep("BET", 137)
+RPC_Cells_BET$group <- rep("BET", nrow(RPC_Cells_BET))
 
 RPC_Cells_term <- rbind(RPC_Cells_ITU, RPC_Cells_PREDO, RPC_Cells_BET)
 RPC_Cells_term$group <- as.factor(RPC_Cells_term$group)
@@ -3288,7 +3279,7 @@ multivariate permutation or randomization test. To this end, the N data
 vectors are permuted, and the multivariate test statistics recalculated
 each time. For each of the four tests, these resulting values form the
 respective distribution whose quantiles are used to determine the p
-value of the corresponding permutation test (if all N\! permutations are
+value of the corresponding permutation test (if all N! permutations are
 performed) or randomization test (if a predetermined number of random
 permutations is performed). The relative effects quantify the tendencies
 observed in the data in term of probabilities. For example, the samples
@@ -3396,8 +3387,8 @@ GA: Trohpoblasts: r = -0.315 p \< 0.001 Synctiotrophoblast: r = 0.362 p
 ``` r
 cor_GA_trophoblasts_cvs <- ggscatter(Pheno_CVS_ITU_filtered, x = "gestage_at_CVS_weeks", y = "Trophoblasts", 
           add = "reg.line", conf.int = TRUE, 
-          xlab = "gestational age (weeks)\n at CVS sampling", ylab = "proportion \n Trophoblast cells (%)")+
-          stat_cor(method = "spearman", label.x = 10, label.y = 0.5,r.digits = 2, aes(label = paste("'r = '", ..r..,sep = "~", "'***'")))+
+          xlab = "gestational age (weeks)\n at CVS sampling", ylab = "proportion \n Trophoblast cells")+
+          stat_cor(method = "spearman", label.x = 10, label.y = 0.5,r.digits = 2, aes(label = paste("'r = '", ..r..,sep = "~", "'**'")))+
           scale_x_continuous(breaks=c(10,12,14,16))+
           scale_y_continuous(breaks=c(0.2,0.3,0.4,0.5))+
   labs(tag="a", size=10)+
@@ -3407,8 +3398,8 @@ cor_GA_trophoblasts_cvs <- ggscatter(Pheno_CVS_ITU_filtered, x = "gestage_at_CVS
 
 cor_GA_syncytiotrophoblasts_cvs <- ggscatter(Pheno_CVS_ITU_filtered, x = "gestage_at_CVS_weeks", y = "Syncytiotrophoblast",
           add = "reg.line", conf.int = TRUE, 
-          xlab = "gestational age (weeks)\n at CVS sampling", ylab = "proportion \n Syncytiotrophoblast cells (%)")+
-          stat_cor(method = "spearman", label.x = 10, label.y = 0.7,r.digits = 2, aes(label = paste("'r = '", ..r..,sep = "~", "'***'")))+
+          xlab = "gestational age (weeks)\n at CVS sampling", ylab = "proportion \n Syncytiotrophoblast cells")+
+          stat_cor(method = "spearman", label.x = 10, label.y = 0.7,r.digits = 2, aes(label = paste("'r = '", ..r..,sep = "~", "'**'")))+
           scale_x_continuous(breaks=c(10,12,14,16))+
           scale_y_continuous(breaks=c(0.5,0.6,0.7))+
     theme(axis.text.x = element_text(size=10), axis.text.y=element_text(size=10), axis.title.y = element_text(size=10), axis.title.x=element_text(size=10),
@@ -3503,7 +3494,7 @@ GA: nothing significant
 ``` r
 cor_GA_trophoblasts_itu <- ggscatter(Pheno_Placenta_ITU_reduced_filtered, x = "Gestational_Age_Weeks", y = "Trophoblasts", 
           add = "reg.line", conf.int = TRUE, 
-          xlab = "gestational age (weeks)", ylab = "proportion \n Trophoblast cells (%)")+
+          xlab = "gestational age (weeks)", ylab = "proportion \n Trophoblast cells")+
           stat_cor(method = "spearman", label.x = 29, label.y = 0.3, r.digits = 2, aes(label = paste("'r = '", ..r..,sep = "~", "''")))+
   labs(tag="b")+
           scale_x_continuous(breaks=c(28,30,32,34,36,38,40,42))+
@@ -3514,7 +3505,7 @@ cor_GA_trophoblasts_itu <- ggscatter(Pheno_Placenta_ITU_reduced_filtered, x = "G
 
 cor_GA_syncytiotrophoblasts_itu <- ggscatter(Pheno_Placenta_ITU_reduced_filtered, x = "Gestational_Age_Weeks", y = "Syncytiotrophoblast", 
           add = "reg.line", conf.int = TRUE, 
-          xlab = "gestational age (weeks)", ylab = "proportion \n Syncytiotrophoblast cells (%)")+
+          xlab = "gestational age (weeks)", ylab = "proportion \n Syncytiotrophoblast cells")+
           stat_cor(method = "spearman", label.x = 29, label.y = 1, r.digits = 1, aes(label = paste("'r = '", ..r..,sep = "~", "''")))+
           scale_x_continuous(breaks=c(28,30,32,34,36,38,40,42))+
           scale_y_continuous(breaks=c(0.6,0.7,0.8,0.9,1.0))+
@@ -3594,7 +3585,7 @@ r = 0.246, p = 0.021
 ``` r
 cor_GA_trophoblasts_predo <- ggscatter(Pheno_Placenta_PREDO_filtered, x = "Gestational_Age", y = "Trophoblasts", 
           add = "reg.line", conf.int = TRUE, 
-          xlab = "gestational age (weeks)", ylab = "proportion \n Trophoblast cells (%)")+
+          xlab = "gestational age (weeks)", ylab = "proportion \n Trophoblast cells")+
           stat_cor(method = "spearman", label.x = 32, label.y = 0.3,r.digits = 2, aes(label = paste("'r = '", ..r..,sep = "~", "''")))+
   labs(tag="c", size=10)+
           scale_x_continuous(breaks=c(32,34,36,38,40,42))+
@@ -3605,7 +3596,7 @@ cor_GA_trophoblasts_predo <- ggscatter(Pheno_Placenta_PREDO_filtered, x = "Gesta
   
 cor_GA_syncytiotrophoblasts_predo <- ggscatter(Pheno_Placenta_PREDO_filtered, x = "Gestational_Age", y = "Syncytiotrophoblast", 
           add = "reg.line", conf.int = TRUE, 
-          xlab = "gestational age (weeks)", ylab = "proportion \n Syncytiotrophoblast cells (%)")+
+          xlab = "gestational age (weeks)", ylab = "proportion \n Syncytiotrophoblast cells")+
           stat_cor(method = "spearman", label.x = 32, label.y = 1.0,r.digits = 2, aes(label = paste("'r = '", ..r..,sep = "~", "''")))+
           scale_x_continuous(breaks=c(32,34,36,38,40,42))+
           scale_y_continuous(breaks=c(0.6,0.7,0.8,0.9,1.0))+
@@ -3703,8 +3694,8 @@ GA: Trohpoblasts: r = -0.415 p \< 0.001 Synctiotrophoblast: r = 0.367 p
 ``` r
 cor_GA_trophoblasts_BET <- ggscatter(Pheno_Placenta_BET_filtered, x = "gestage_weeks", y = "Trophoblasts", 
           add = "reg.line", conf.int = TRUE, 
-          xlab = "gestational age (weeks)", ylab = "proportion \n Trophoblast cells (%)")+
-          stat_cor(method = "spearman", label.x = 34, label.y = 0.4, r.digits = 2, aes(label = paste("'r = '", ..r..,sep = "~", "'***'")))+
+          xlab = "gestational age (weeks)", ylab = "proportion \n Trophoblast cells")+
+          stat_cor(method = "spearman", label.x = 34, label.y = 0.4, r.digits = 2, aes(label = paste("'r = '", ..r..,sep = "~", "'**'")))+
   labs(tag="d")+
           scale_x_continuous(breaks=c(34,36,38,40,42))+
           scale_y_continuous(breaks=c(0.1,0.2,0.3,0.4))+
@@ -3714,8 +3705,8 @@ cor_GA_trophoblasts_BET <- ggscatter(Pheno_Placenta_BET_filtered, x = "gestage_w
 
 cor_GA_syncytiotrophoblasts_BET <- ggscatter(Pheno_Placenta_BET_filtered, x = "gestage_weeks", y = "Syncytiotrophoblast", 
           add = "reg.line", conf.int = TRUE, 
-          xlab = "gestational age (weeks)", ylab = "proportion \n Syncytiotrophoblast cells (%)")+
-          stat_cor(method = "spearman", label.x = 34, label.y = 0.8, r.digits = 2, aes(label = paste("'r = '", ..r..,sep = "~", "'***'")))+
+          xlab = "gestational age (weeks)", ylab = "proportion \n Syncytiotrophoblast cells")+
+          stat_cor(method = "spearman", label.x = 34, label.y = 0.8, r.digits = 2, aes(label = paste("'r = '", ..r..,sep = "~", "'**'")))+
           scale_x_continuous(breaks=c(34,36,38,40,42))+
           scale_y_continuous(breaks=c(0.5,0.6,0.7,0.8))+
         theme(axis.text.x = element_text(size=10), axis.text.y=element_text(size=10), axis.title.y = element_text(size=10), axis.title.x=element_text(size=10),
@@ -3783,7 +3774,7 @@ no significant differences between sexes
 
 ## arrange plots together
 
-*Fig. 6*
+*Fig. 7*
 
 ``` r
 ggsave("Results/GA_cor.pdf",

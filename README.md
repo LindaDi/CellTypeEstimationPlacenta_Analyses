@@ -1,6 +1,6 @@
 # CellTypeEstimationPlacenta_Analyses
 
-'Reference-based versus reference-free cell type estimation in DNA methylation studies using human placental tissue'
+'Reliability of a novel approach for reference-based cell type estimation in human placental DNA methylation studies'
 
 Here you find the R Code used for 1) Pre-Filtering and 2) Main Analyses. 
-The sessioninfo (1 and 2, correspondingly) gives information about R packages and versions.
+
