@@ -1,25 +1,24 @@
-Reference-based versus reference-free cell type estimation in DNA
-methylation studies using human placental tissue - Script 1,
-Pre-Filtering
+Reliability of a novel approach for reference-based cell type estimation
+in human placental DNA methylation studies - Script 1, Pre-Filtering
 ================
 Linda Dieckmann
 02-07/2021
 
-  - [preparation](#preparation)
-      - [loading packages](#loading-packages)
-      - [define function(s)](#define-functions)
-      - [R setup](#r-setup)
-      - [save packages info](#save-packages-info)
-  - [loading data](#loading-data)
-  - [Look for sample outliers in PC1
+-   [preparation](#preparation)
+    -   [loading packages](#loading-packages)
+    -   [define function(s)](#define-functions)
+    -   [R setup](#r-setup)
+    -   [save packages info](#save-packages-info)
+-   [loading data](#loading-data)
+-   [Look for sample outliers in PC1
     methylation](#look-for-sample-outliers-in-pc1-methylation)
-  - [Filtering for non-variable CpGs in placenta from EPIC
+-   [Filtering for non-variable CpGs in placenta from EPIC
     Array](#filtering-for-non-variable-cpgs-in-placenta-from-epic-array)
-      - [Identify the probes present in all studies of a
+    -   [Identify the probes present in all studies of a
         tissue](#identify-the-probes-present-in-all-studies-of-a-tissue)
-      - [Take a look at the data and start
+    -   [Take a look at the data and start
         QC](#take-a-look-at-the-data-and-start-qc)
-      - [Call Non-variable CpGs](#call-non-variable-cpgs)
+    -   [Call Non-variable CpGs](#call-non-variable-cpgs)
 
 Analysis referring to Edgar et al. (2017) to identify low-varying CpGs
 in placenta methylation data
@@ -36,9 +35,9 @@ library(gplots)
 ```
 
     ## 
-    ## Attaching package: 'gplots'
+    ## Attache Paket: 'gplots'
 
-    ## The following object is masked from 'package:stats':
+    ## Das folgende Objekt ist maskiert 'package:stats':
     ## 
     ##     lowess
 
@@ -49,9 +48,9 @@ library(rstatix)
 ```
 
     ## 
-    ## Attaching package: 'rstatix'
+    ## Attache Paket: 'rstatix'
 
-    ## The following object is masked from 'package:stats':
+    ## Das folgende Objekt ist maskiert 'package:stats':
     ## 
     ##     filter
 
